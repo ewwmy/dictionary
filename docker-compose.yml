@@ -1,9 +1,9 @@
 services:
-  app:
+  dictionary-backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
-    image: dictionary:latest
+    image: dictionary-backend:latest
     container_name: dictionary
     restart: always
     ports:

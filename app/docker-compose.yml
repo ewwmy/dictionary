@@ -1,0 +1,10 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dictionary:latest
+    container_name: dictionary
+    restart: always
+    ports:
+      - '3000:3000'

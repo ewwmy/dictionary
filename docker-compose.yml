@@ -4,7 +4,9 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     image: dictionary-backend:latest
-    container_name: dictionary
+    container_name: dictionary-backend
     restart: always
     ports:
       - '3000:3000'
+    volumes:
+      - ./backend/src:/app/src

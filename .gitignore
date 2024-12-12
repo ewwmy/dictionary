@@ -1,5 +1,5 @@
-# database/model/*.png
-# database/model/*.jpg
+database/model/*.png
+database/model/*.jpg
 database/model/*.mwb
 
 # compiled output

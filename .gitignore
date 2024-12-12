@@ -1,8 +1,6 @@
-database/model/*.png
-database/model/*.jpg
+# database/model/*.png
+# database/model/*.jpg
 database/model/*.mwb
-!database/model/dictionary.png
-!database/model/dictionary.mwb
 
 # compiled output
 dist

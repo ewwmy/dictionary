@@ -1,0 +1,175 @@
+@startuml dictionary
+
+' this flag is used to make wires straight-angled:
+' skinparam linetype ortho
+
+entity invite_tokens {
+  * id : INT <<PK>> <<AI>>
+  ---
+  * token : STRING
+  * time_create : TIMESTAMP
+  time_expiration : TIMESTAMP
+}
+
+entity users {
+  * id : INT <<PK>> <<AI>>
+  ---
+  invite_token_id : INT <<FK>>
+  ---
+  * name : STRING
+  * email : STRING
+  * password : STRING
+  confirm_code : STRING
+  reset_password_token : STRING
+  * is_active : BOOLEAN = 0
+  * time_create : TIMESTAMP
+  time_edit : TIMESTAMP
+}
+
+entity languages {
+  * id : INT <<PK>> <<AI>>
+  ---
+  * user_id : INT <<FK>>
+  ---
+  * name : STRING
+  country : STRING
+  flag : STRING
+  * time_create : TIMESTAMP
+  time_edit : TIMESTAMP
+}
+
+entity tags {
+  * id : INT <<PK>> <<AI>>
+  ---
+  * language_id : INT <<FK>>
+  ---
+  * name : STRING
+  title : STRING
+  color : STRING
+}
+
+entity words_tags {
+  * word_id : INT <<PK>> <<FK>>
+  * tag_id : INT <<PK>> <<FK>>
+}
+
+entity words_progress {
+  * id : INT <<PK>> <<AI>>
+  ---
+  * word_id : INT <<FK>>
+  ---
+  * interval : INT = 1
+  * success_count : INT = 0
+  * failure_count : INT = 0
+  time_last_review : DATETIME
+}
+
+entity antonyms {
+  * word_id : INT <<PK>> <<FK>>
+  * antonym_id : INT <<PK>> <<FK>>
+  ---
+  description : STRING
+  * time_create : DATETIME
+  time_edit : DATETIME
+}
+
+entity synonyms {
+  * word_id : INT <<PK>> <<FK>>
+  * synonym_id : INT <<PK>> <<FK>>
+  ---
+  description : STRING
+  * time_create : DATETIME
+  time_edit : DATETIME
+}
+
+entity words {
+  * id : INT <<PK>> <<AI>>
+  ---
+  * language_id : INT <<FK>>
+  level_id : INT <<FK>>
+  ---
+  formality : INT
+  complexity : INT
+  * word : STRING
+  word_v2 : STRING
+  word_v3 : STRING
+  translation : STRING
+  description_target : STRING
+  description_local : STRING
+  transcription_strict : STRING
+  transcription_phonetic : STRING
+  * is_favorite : BOOLEAN = 0
+  * time_create : DATETIME
+  time_edit : DATETIME
+}
+
+entity levels {
+  * id : INT <<PK>> <<AI>>
+  ---
+  * language_id : INT <<FK>>
+  ---
+  * name : STRING
+  title : STRING
+}
+
+entity parts_of_speech {
+  * id : INT <<PK>> <<AI>>
+  ---
+  * language_id : INT <<FK>>
+  ---
+  * name : STRING
+  title : STRING
+}
+
+entity examples {
+  * id : INT <<PK>> <<AI>>
+  ---
+  * word_id : INT <<FK>>
+  ---
+  * example : STRING
+  translation : STRING
+  description : STRING
+  * time_create : DATETIME
+  time_edit : DATETIME
+}
+
+entity translations {
+  * id : INT <<PK>> <<AI>>
+  ---
+  * word_id : INT <<FK>>
+  part_of_speech_id : INT <<FK>>
+  ---
+  * translation : STRING
+  description : STRING
+  weight : INT
+  * time_create : DATETIME
+  time_edit : DATETIME
+}
+
+entity translations_examples {
+  * translation_id : INT <<PK>> <<FK>>
+  * example_id : INT <<PK>> <<FK>>
+}
+
+invite_tokens ||..o{ users : "invite_token_id"
+users ||..o{ languages : "user_id"
+languages ||..o{ tags : "language_id"
+languages ||..o{ words : "language_id"
+tags ||--o{ words_tags : "tag_id"
+words_tags }o--|| words : "word_id"
+antonyms }o--|| words : "word_id"
+antonyms }o--|| words : "antonym_id"
+synonyms }o--|| words : "word_id"
+synonyms }o--|| words : "synonym_id"
+words ||..o{ words_progress : "word_id"
+words ||..o{ examples : "word_id"
+words ||..o{ translations : "word_id"
+translations_examples }o--|| translations : "translation_id"
+translations_examples }o--|| examples : "example_id"
+translations }o..|| words : "word_id"
+translations }o..|| parts_of_speech : "part_of_speech_id"
+parts_of_speech }o..|| languages : "language_id"
+levels }o..|| languages : "language_id"
+levels ||..o{ words : "level_id"
+
+@enduml

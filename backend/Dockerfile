@@ -12,4 +12,6 @@ RUN npm run build
 
 EXPOSE 3000
 
-CMD ["node", "dist/main"]
+ENV NODE_ENV=production
+
+CMD ["sh", "-c", "if [ \"$NODE_ENV\" = \"development\" ]; then npm run start:dev; else npm run start:prod; fi"]

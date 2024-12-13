@@ -10,7 +10,7 @@ COPY . .
 
 RUN npm run build
 
-EXPOSE 3000
+EXPOSE ${APP_DOCKER_PORT:-3000}
 
 ENV NODE_ENV=production
 

@@ -4,20 +4,26 @@
 
 ## Run
 
+```bash
+cp .env.example .env.development
+cp .env.example .env.production
+```
+
 ### Development
 
 ```bash
-NODE_ENV=development docker compose up --build
+docker compose --env-file .env.development up --build
 ```
 
 ### Production
 
 ```bash
-docker compose up --build
+docker compose --env-file .env.production up --build
 ```
 
-or
+### Shutdown
 
 ```bash
-NODE_ENV=production docker compose up --build
+docker compose down
+# docker volume rm dictionary_postgres-data
 ```

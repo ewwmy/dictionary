@@ -1,0 +1,4 @@
+services:
+  postgres:
+    ports:
+      - "${DATABASE_HOST_PORT:-5432}:${DATABASE_DOCKER_PORT:-5432}"

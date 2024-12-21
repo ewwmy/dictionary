@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
     environment:
       NODE_ENV: ${NODE_ENV:-production}
+      DATABASE_URL: ${DATABASE_URL:-}
     image: dictionary-backend:latest
     container_name: dictionary-backend
     restart: always
@@ -24,8 +25,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-dictionary}
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    ports:
-      - "${DATABASE_HOST_PORT:-5432}:${DATABASE_DOCKER_PORT:-5432}"
 
 volumes:
   postgres-data:

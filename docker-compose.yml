@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
     environment:
       NODE_ENV: ${NODE_ENV:-production}
+      DATABASE_URL: ${DATABASE_URL:-}
     image: dictionary-backend:latest
     container_name: dictionary-backend
     restart: always

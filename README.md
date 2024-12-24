@@ -14,7 +14,7 @@ Edit env-files for your purposes.
 ### Development
 
 ```bash
-docker compose --env-file .env.development -f docker-compose.yml -f docker-compose.development.yml up --build
+docker compose --env-file .env.development -f docker-compose.yml -f docker-compose.dev.yml up --build
 ```
 
 ### Production
@@ -27,7 +27,6 @@ docker compose --env-file .env.production up --build -d
 
 ```bash
 docker compose down
-# docker volume rm dictionary_postgres-data
 ```
 
 ## Database connection
@@ -48,24 +47,42 @@ Using the predefined npm scripts:
 npm run migrate:dev -- --name migration_name
 ```
 
-Using the command itself:
+Inside the docker container:
 
 ```bash
 docker compose exec dictionary-backend npx prisma migrate dev --name migration_name
 ```
 
-In case of running prisma commands on your host (outside the docker container), make sure you have set the `DATABASE_URL` variable in your environment.
-
-You can pass it directly:
+Outside the docker container (make sure you have set the `DATABASE_URL` variable in your environment):
 
 ```bash
 DATABASE_URL=postgresql://user:password@localhost:5432/dictionary npx prisma migrate dev --name migration_name
 ```
 
-or create `prisma/.env` file with the `DATABASE_URL` variable and then just:
+or (`prisma/.env` file with the `DATABASE_URL` variable must exist):
 
 ```bash
 npx prisma migrate dev --name migration_name
+```
+
+#### Seeding
+
+##### Inside the Docker container
+
+```bash
+docker compose exec dictionary-backend npx prisma db seed
+```
+
+##### Outside Docker
+
+```bash
+DATABASE_URL=postgresql://user:password@localhost:5432/dictionary npx prisma db seed
+```
+
+or just (if the `DATABASE_URL` environment variable is set properly):
+
+```bash
+npx prisma db seed
 ```
 
 ### Production

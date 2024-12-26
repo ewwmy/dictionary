@@ -19,6 +19,7 @@ entity users {
   * name : STRING
   * email : STRING
   * password : STRING
+  settings : JSON
   confirm_code : STRING
   reset_password_token : STRING
   * is_active : BOOLEAN = 0
@@ -110,6 +111,7 @@ entity levels {
   ---
   * name : STRING
   title : STRING
+  * order : INT
 }
 
 entity parts_of_speech {

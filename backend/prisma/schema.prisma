@@ -13,18 +13,149 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+model InviteToken {
+  id             Int       @id @default(autoincrement())
+  token          String
+  timeCreate     DateTime
+  timeExpiration DateTime?
+  users          User[]
 }
 
-model Post {
-  id       Int      @id @default(autoincrement())
-  title    String
-  content  String?
-  published Boolean @default(false)
-  authorId Int
-  author   User     @relation(fields: [authorId], references: [id])
+model User {
+  id                 Int          @id @default(autoincrement())
+  inviteTokenId      Int?         @map("invite_token_id")
+  name               String
+  email              String
+  password           String
+  settings           Json?
+  confirmCode        String?
+  resetPasswordToken String?
+  isActive           Boolean      @default(false)
+  timeCreate         DateTime
+  timeEdit           DateTime?
+  inviteToken        InviteToken? @relation(fields: [inviteTokenId], references: [id])
+  languages          Language[]
+}
+
+model Language {
+  id           Int            @id @default(autoincrement())
+  userId       Int            @map("user_id")
+  name         String
+  country      String?
+  flag         String?
+  timeCreate   DateTime
+  timeEdit     DateTime?
+  user         User           @relation(fields: [userId], references: [id])
+  tags         Tag[]
+  words        Word[]
+  Level        Level[]
+  PartOfSpeech PartOfSpeech[]
+}
+
+model Tag {
+  id         Int       @id @default(autoincrement())
+  languageId Int       @map("language_id")
+  name       String
+  title      String?
+  color      String?
+  language   Language  @relation(fields: [languageId], references: [id])
+  wordsTags  WordTag[]
+}
+
+model WordTag {
+  wordId Int
+  tagId  Int
+  word   Word @relation(fields: [wordId], references: [id])
+  tag    Tag  @relation(fields: [tagId], references: [id])
+
+  @@id([wordId, tagId])
+}
+
+model WordProgress {
+  id             Int       @id @default(autoincrement())
+  wordId         Int       @map("word_id")
+  interval       Int       @default(1)
+  successCount   Int       @default(0) @map("success_count")
+  failureCount   Int       @default(0) @map("failure_count")
+  timeLastReview DateTime?
+  word           Word      @relation(fields: [wordId], references: [id])
+}
+
+model Word {
+  id                    Int            @id @default(autoincrement())
+  languageId            Int            @map("language_id")
+  levelId               Int?           @map("level_id")
+  formality             Int?
+  complexity            Int?
+  word                  String
+  wordV2                String?
+  wordV3                String?
+  translation           String?
+  descriptionTarget     String?
+  descriptionLocal      String?
+  transcriptionStrict   String?
+  transcriptionPhonetic String?
+  isFavorite            Boolean        @default(false)
+  timeCreate            DateTime
+  timeEdit              DateTime?
+  language              Language       @relation(fields: [languageId], references: [id])
+  level                 Level?         @relation(fields: [levelId], references: [id])
+  wordsProgress         WordProgress[]
+  examples              Example[]
+  translations          Translation[]
+  WordTag               WordTag[]
+}
+
+model Level {
+  id         Int      @id @default(autoincrement())
+  languageId Int      @map("language_id")
+  name       String
+  title      String?
+  order      Int
+  language   Language @relation(fields: [languageId], references: [id])
+  words      Word[]
+}
+
+model PartOfSpeech {
+  id           Int           @id @default(autoincrement())
+  languageId   Int           @map("language_id")
+  name         String
+  title        String?
+  language     Language      @relation(fields: [languageId], references: [id])
+  translations Translation[]
+}
+
+model Translation {
+  id                 Int                  @id @default(autoincrement())
+  wordId             Int                  @map("word_id")
+  partOfSpeechId     Int?                 @map("part_of_speech_id")
+  translation        String
+  description        String?
+  weight             Int?
+  timeCreate         DateTime
+  timeEdit           DateTime?
+  word               Word                 @relation(fields: [wordId], references: [id])
+  partOfSpeech       PartOfSpeech?        @relation(fields: [partOfSpeechId], references: [id])
+  TranslationExample TranslationExample[]
+}
+
+model Example {
+  id                 Int                  @id @default(autoincrement())
+  wordId             Int                  @map("word_id")
+  example            String
+  translation        String?
+  description        String?
+  timeCreate         DateTime
+  timeEdit           DateTime?
+  word               Word                 @relation(fields: [wordId], references: [id])
+  TranslationExample TranslationExample[]
+}
+
+model TranslationExample {
+  translationId Int
+  exampleId     Int
+  translation   Translation @relation(fields: [translationId], references: [id])
+  example       Example     @relation(fields: [exampleId], references: [id])
+
+  @@id([translationId, exampleId])
 }

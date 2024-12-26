@@ -19,7 +19,11 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "migrate:dev": "npx prisma migrate dev",
-    "migrate:deploy": "npx prisma migrate deploy"
+    "migrate:prod": "npx prisma migrate deploy",
+    "migrate:seed": "npx prisma db seed",
+    "docker:up:dev": "docker compose --env-file ../.env.development -f ../docker-compose.yml -f ../docker-compose.dev.yml up",
+    "docker:up:prod": "docker compose --env-file ../.env.production -f ../docker-compose.yml up",
+    "docker:down": "docker compose down"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

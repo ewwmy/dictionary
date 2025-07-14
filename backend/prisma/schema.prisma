@@ -13,18 +13,223 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+model InviteToken {
+  id             Int         @id @default(autoincrement())
+  token          String
+  timeCreate     DateTime    @default(now()) @map("time_create")
+  timeExpiration DateTime?   @map("time_expiration")
+
+  users          User[]
+
+  @@map("invite_tokens")
 }
 
-model Post {
-  id       Int      @id @default(autoincrement())
-  title    String
-  content  String?
-  published Boolean @default(false)
-  authorId Int
-  author   User     @relation(fields: [authorId], references: [id])
+model User {
+  id                 Int          @id @default(autoincrement())
+  inviteTokenId      Int?         @map("invite_token_id")
+  name               String
+  email              String
+  password           String
+  settings           Json?
+  confirmCode        String?      @map("confirm_code")
+  resetPasswordToken String?      @map("reset_password_token")
+  isActive           Boolean      @default(false) @map("is_active")
+  timeCreate         DateTime     @default(now()) @map("time_create")
+  timeEdit           DateTime?    @updatedAt @map("time_edit")
+
+  inviteToken        InviteToken? @relation(fields: [inviteTokenId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  languages          Language[]
+
+  @@map("users")
+}
+
+model Language {
+  id           Int            @id @default(autoincrement())
+  userId       Int            @map("user_id")
+  name         String
+  country      String?
+  flag         String?
+  timeCreate   DateTime       @default(now()) @map("time_create")
+  timeEdit     DateTime?      @updatedAt @map("time_edit")
+
+  user         User           @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  tags         Tag[]
+  words        Word[]
+  Level        Level[]
+  PartOfSpeech PartOfSpeech[]
+
+  @@map("languages")
+}
+
+model Tag {
+  id         Int       @id @default(autoincrement())
+  languageId Int       @map("language_id")
+  name       String
+  title      String?
+  color      String?
+
+  language   Language  @relation(fields: [languageId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  wordsTags  WordTag[]
+
+  @@map("tags")
+}
+
+model WordTag {
+  wordId   Int    @map("word_id")
+  tagId    Int    @map("tag_id")
+
+  word     Word   @relation(fields: [wordId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  tag      Tag    @relation(fields: [tagId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@id([wordId, tagId])
+  @@map("words_tags")
+}
+
+model WordProgress {
+  id             Int       @id @default(autoincrement())
+  wordId         Int       @unique @map("word_id")
+  interval       Int       @default(1)
+  successCount   Int       @default(0) @map("success_count")
+  failureCount   Int       @default(0) @map("failure_count")
+  timeLastReview DateTime?
+
+  word           Word      @relation(fields: [wordId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@map("words_progress")
+}
+
+model Antonym {
+  wordId        Int         @map("word_id")
+  antonymId     Int         @map("antonym_id")
+  description   String?     @db.Text
+  timeCreate    DateTime    @default(now()) @map("time_create")
+  timeEdit      DateTime?   @updatedAt @map("time_edit")
+
+  word          Word        @relation("antonym_word", fields: [wordId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  antonym       Word        @relation("antonym_antonym", fields: [antonymId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@id([wordId, antonymId])
+  @@map("antonyms")
+}
+
+model Synonym {
+  wordId        Int         @map("word_id")
+  synonymId     Int         @map("synonym_id")
+  description   String?     @db.Text
+  timeCreate    DateTime    @default(now()) @map("time_create")
+  timeEdit      DateTime?   @updatedAt @map("time_edit")
+
+  word          Word        @relation("synonym_word", fields: [wordId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  synonym       Word        @relation("synonym_synonym", fields: [synonymId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@id([wordId, synonymId])
+  @@map("synonyms")
+}
+
+model Word {
+  id                      Int         @id @default(autoincrement())
+  languageId              Int         @map("language_id")
+  levelId                 Int?        @map("level_id")
+  formality               Int?
+  complexity              Int?
+  word                    String
+  word2                   String?     @map("word_v2")
+  word3                   String?     @map("word_v3")
+  translation             String?
+  description             String?
+  transcriptionStrict     String?     @map("transcription_strict")
+  transcriptionPhonetic   String?     @map("transcription_phonetic")
+  isFavorite              Boolean     @default(false) @map("is_favorite")
+  timeCreate              DateTime    @default(now()) @map("time_create")
+  timeEdit                DateTime?   @updatedAt @map("time_edit")
+
+  language                Language    @relation(fields: [languageId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  level                   Level?      @relation(fields: [levelId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  wordsTags               WordTag[]
+  antonymWords            Antonym[]   @relation("antonym_word")
+  antonymAntonyms         Antonym[]   @relation("antonym_antonym")
+  synonymWords            Synonym[]   @relation("synonym_word")
+  synonymSynonyms         Synonym[]   @relation("synonym_synonym")
+  meanings                Meaning[]
+  progress                WordProgress?
+
+  @@map("words")
+}
+
+model Level {
+  id            Int         @id @default(autoincrement())
+  languageId    Int         @map("language_id")
+  name          String
+  title         String?
+  order         Int
+
+  language      Language    @relation(fields: [languageId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  words         Word[]
+
+  @@map("levels")
+}
+
+model PartOfSpeech {
+  id            Int         @id @default(autoincrement())
+  languageId    Int         @map("language_id")
+  name          String
+  title         String?
+
+  language      Language    @relation(fields: [languageId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  meanings      Meaning[]
+
+  @@map("parts_of_speech")
+}
+
+model Example {
+  id            Int         @id @default(autoincrement())
+  meaningId     Int         @map("meaning_id")
+  example       String
+  translation   String?
+  description   String?
+  timeCreate    DateTime    @default(now()) @map("time_create")
+  timeEdit      DateTime?   @updatedAt @map("time_edit")
+
+  meaning       Meaning     @relation(fields: [meaningId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@map("examples")
+}
+
+model Translation {
+  id            Int         @id @default(autoincrement())
+  meaningId     Int         @map("meaning_id")
+  translation   String
+  description   String?
+  weight        Int?
+  timeCreate    DateTime    @default(now()) @map("time_create")
+  timeEdit      DateTime?   @updatedAt @map("time_edit")
+
+  meaning       Meaning     @relation(fields: [meaningId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@map("translations")
+}
+
+model Meaning {
+  id               Int            @id @default(autoincrement())
+  wordId           Int            @map("word_id")
+  partOfSpeechId   Int            @map("part_of_speech_id")
+
+  meaning          String
+  description      String?
+  timeCreate       DateTime       @default(now()) @map("time_create")
+  timeEdit         DateTime?      @updatedAt @map("time_edit")
+
+  word             Word           @relation(fields: [wordId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  partOfSpeech     PartOfSpeech   @relation(fields: [partOfSpeechId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  examples         Example[]
+  translations     Translation[]
+
+  @@map("meanings")
 }

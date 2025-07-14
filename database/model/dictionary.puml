@@ -57,7 +57,7 @@ entity words_tags {
 entity words_progress {
   * id : INT <<PK>> <<AI>>
   ---
-  * word_id : INT <<FK>>
+  * word_id : INT <<UK>> <<FK>>
   ---
   * interval : INT = 1
   * success_count : INT = 0
@@ -95,8 +95,7 @@ entity words {
   word_v2 : STRING
   word_v3 : STRING
   translation : STRING
-  description_target : STRING
-  description_local : STRING
+  description : STRING
   transcription_strict : STRING
   transcription_phonetic : STRING
   * is_favorite : BOOLEAN = 0
@@ -126,7 +125,7 @@ entity parts_of_speech {
 entity examples {
   * id : INT <<PK>> <<AI>>
   ---
-  * word_id : INT <<FK>>
+  * meaning_id : INT <<FK>>
   ---
   * example : STRING
   translation : STRING
@@ -138,8 +137,7 @@ entity examples {
 entity translations {
   * id : INT <<PK>> <<AI>>
   ---
-  * word_id : INT <<FK>>
-  part_of_speech_id : INT <<FK>>
+  * meaning_id : INT <<FK>>
   ---
   * translation : STRING
   description : STRING
@@ -148,9 +146,16 @@ entity translations {
   time_edit : DATETIME
 }
 
-entity translations_examples {
-  * translation_id : INT <<PK>> <<FK>>
-  * example_id : INT <<PK>> <<FK>>
+entity meanings {
+  * id : INT <<PK>> <<AI>>
+  ---
+  * word_id : INT <<FK>>
+  * part_of_speech_id : INT <<FK>>
+  ---
+  * meaning : STRING
+  description : STRING
+  * time_create : DATETIME
+  time_edit : DATETIME
 }
 
 invite_tokens ||..o{ users : "invite_token_id"
@@ -163,13 +168,11 @@ antonyms }o--|| words : "word_id"
 antonyms }o--|| words : "antonym_id"
 synonyms }o--|| words : "word_id"
 synonyms }o--|| words : "synonym_id"
-words ||..o{ words_progress : "word_id"
-words ||..o{ examples : "word_id"
-words ||..o{ translations : "word_id"
-translations_examples }o--|| translations : "translation_id"
-translations_examples }o--|| examples : "example_id"
-translations }o..|| words : "word_id"
-translations }o..|| parts_of_speech : "part_of_speech_id"
+words ||..|| words_progress : "word_id"
+meanings }o..|| words : "word_id"
+examples }o..|| meanings : "meaning_id"
+translations }o..|| meanings : "meaning_id"
+meanings }o..|| parts_of_speech : "part_of_speech_id"
 parts_of_speech }o..|| languages : "language_id"
 levels }o..|| languages : "language_id"
 levels ||..o{ words : "level_id"

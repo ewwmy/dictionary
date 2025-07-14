@@ -5,11 +5,36 @@ const prisma = new PrismaClient()
 async function main() {
   await prisma.user.createMany({
     data: [
-      { name: 'Alice', email: 'alice@example.com' },
-      { name: 'Bob', email: 'bob@example.com' },
-      { name: 'Charlie', email: 'charlie@example.com' },
-      { name: 'Diana', email: 'diana@example.com' },
-      { name: 'Eve', email: 'eve@example.com' },
+      {
+        name: 'Alice',
+        email: 'alice@example.com',
+        password: 'abc123',
+        timeCreate: new Date(),
+      },
+      {
+        name: 'Bob',
+        email: 'bob@example.com',
+        password: 'abc123',
+        timeCreate: new Date(),
+      },
+      {
+        name: 'Charlie',
+        email: 'charlie@example.com',
+        password: 'abc123',
+        timeCreate: new Date(),
+      },
+      {
+        name: 'Diana',
+        email: 'diana@example.com',
+        password: 'abc123',
+        timeCreate: new Date(),
+      },
+      {
+        name: 'Eve',
+        email: 'eve@example.com',
+        password: 'abc123',
+        timeCreate: new Date(),
+      },
     ],
   })
   console.log('Seeding completed!')

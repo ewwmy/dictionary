@@ -95,8 +95,7 @@ entity words {
   word_v2 : STRING
   word_v3 : STRING
   translation : STRING
-  description_target : STRING
-  description_local : STRING
+  description : STRING
   transcription_strict : STRING
   transcription_phonetic : STRING
   * is_favorite : BOOLEAN = 0
@@ -153,8 +152,8 @@ entity meanings {
   * word_id : INT <<FK>>
   * part_of_speech_id : INT <<FK>>
   ---
-  * meaning: STRING
-  description: STRING
+  * meaning : STRING
+  description : STRING
   * time_create : DATETIME
   time_edit : DATETIME
 }
@@ -169,7 +168,7 @@ antonyms }o--|| words : "word_id"
 antonyms }o--|| words : "antonym_id"
 synonyms }o--|| words : "word_id"
 synonyms }o--|| words : "synonym_id"
-words ||..o{ words_progress : "word_id"
+words ||..|| words_progress : "word_id"
 meanings }o..|| words : "word_id"
 examples }o..|| meanings : "meaning_id"
 translations }o..|| meanings : "meaning_id"

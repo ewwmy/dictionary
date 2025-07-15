@@ -17,7 +17,7 @@ entity users {
   invite_token_id : INT <<FK>>
   ---
   * name : STRING
-  * email : STRING
+  * email : STRING <<UK>>
   * password : STRING
   settings : JSON
   confirm_code : STRING

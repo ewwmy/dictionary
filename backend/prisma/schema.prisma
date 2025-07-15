@@ -28,7 +28,7 @@ model User {
   id                 Int          @id @default(autoincrement())
   inviteTokenId      Int?         @map("invite_token_id")
   name               String
-  email              String
+  email              String       @unique
   password           String
   settings           Json?
   confirmCode        String?      @map("confirm_code")

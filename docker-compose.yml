@@ -6,6 +6,8 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       DATABASE_URL: ${DATABASE_URL:-}
+    env_file:
+      - .env.${NODE_ENV}
     image: dictionary-backend:latest
     container_name: dictionary-backend
     restart: always

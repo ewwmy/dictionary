@@ -6,6 +6,7 @@ import {
   UseGuards,
   Get,
   Request,
+  HttpCode,
 } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 import { AuthService } from './auth.service'
@@ -37,6 +38,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @HttpCode(200)
   @Throttle({
     default: {
       ttl: THROTTLE_LOGIN_TTL,

@@ -57,8 +57,7 @@ model Language {
 
   tags         Tag[]
   words        Word[]
-  Level        Level[]
-  PartOfSpeech PartOfSpeech[]
+  level        Level[]
 
   @@map("languages")
 }
@@ -154,7 +153,7 @@ model Word {
   antonymAntonyms         Antonym[]   @relation("antonym_antonym")
   synonymWords            Synonym[]   @relation("synonym_word")
   synonymSynonyms         Synonym[]   @relation("synonym_synonym")
-  meanings                Meaning[]
+  examples                Example[]
   progress                WordProgress?
 
   @@map("words")
@@ -174,62 +173,16 @@ model Level {
   @@map("levels")
 }
 
-model PartOfSpeech {
-  id            Int         @id @default(autoincrement())
-  languageId    Int         @map("language_id")
-  name          String
-  title         String?
-
-  language      Language    @relation(fields: [languageId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-
-  meanings      Meaning[]
-
-  @@map("parts_of_speech")
-}
-
 model Example {
   id            Int         @id @default(autoincrement())
-  meaningId     Int         @map("meaning_id")
+  wordId        Int         @map("word_id")
   example       String
   translation   String?
   description   String?
   timeCreate    DateTime    @default(now()) @map("time_create")
   timeEdit      DateTime?   @updatedAt @map("time_edit")
 
-  meaning       Meaning     @relation(fields: [meaningId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  word          Word        @relation(fields: [wordId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@map("examples")
-}
-
-model Translation {
-  id            Int         @id @default(autoincrement())
-  meaningId     Int         @map("meaning_id")
-  translation   String
-  description   String?
-  weight        Int?
-  timeCreate    DateTime    @default(now()) @map("time_create")
-  timeEdit      DateTime?   @updatedAt @map("time_edit")
-
-  meaning       Meaning     @relation(fields: [meaningId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-
-  @@map("translations")
-}
-
-model Meaning {
-  id               Int            @id @default(autoincrement())
-  wordId           Int            @map("word_id")
-  partOfSpeechId   Int            @map("part_of_speech_id")
-
-  meaning          String
-  description      String?
-  timeCreate       DateTime       @default(now()) @map("time_create")
-  timeEdit         DateTime?      @updatedAt @map("time_edit")
-
-  word             Word           @relation(fields: [wordId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  partOfSpeech     PartOfSpeech   @relation(fields: [partOfSpeechId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-
-  examples         Example[]
-  translations     Translation[]
-
-  @@map("meanings")
 }

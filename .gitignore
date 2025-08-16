@@ -49,6 +49,7 @@ coverage
 .temp
 .tmp
 *.bkp
+*.dtmp
 
 # Runtime data
 pids

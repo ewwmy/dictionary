@@ -125,25 +125,11 @@ entity examples {
   time_edit : DATETIME
 }
 
-entity translations {
-  * id : INT <<PK>> <<AI>>
-  ---
-  * word_id : INT <<FK>>
-  ---
-  * translation : STRING
-  description : STRING
-  group_num : INT
-  weight : INT
-  * time_create : DATETIME
-  time_edit : DATETIME
-}
-
 invite_tokens ||..o{ users : "invite_token_id"
 users ||..o{ languages : "user_id"
 languages ||..o{ tags : "language_id"
 languages ||..o{ words : "language_id"
 examples }o..|| words : "word_id"
-translations }o..|| words : "word_id"
 tags ||--o{ words_tags : "tag_id"
 words_tags }o--|| words : "word_id"
 antonyms }o--|| words : "word_id"

@@ -45,9 +45,11 @@ coverage
 .env*
 !.env*.example
 
-# temp directory
-.temp
-.tmp
+# temp directories and files
+*.temp
+*.tmp
+*.bkp
+*.dtmp
 
 # Runtime data
 pids

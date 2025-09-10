@@ -1,9 +1,16 @@
-import { Injectable } from '@nestjs/common'
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { UserService } from 'src/user/user.service'
 
 import * as bcrypt from 'bcrypt'
 import { ConfigService } from '@nestjs/config'
+import { RegisterUserDto } from './dto/register.user.dto'
+import { PrismaService } from 'src/prisma/prisma.service'
 
 @Injectable()
 export class AuthService {
@@ -11,15 +18,22 @@ export class AuthService {
     private userService: UserService,
     private configService: ConfigService,
     private jwt: JwtService,
+    private prisma: PrismaService,
   ) {}
 
-  async validateUser(email: string, pass: string) {
+  async validateUser(email: string, password: string) {
     const user = await this.userService.findByEmail(email)
-    if (user && (await bcrypt.compare(pass, user.password))) {
-      const { password, ...result } = user
-      return result
+    const isPasswordValid = await bcrypt.compare(password, user.password)
+
+    if (!user || !isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials')
     }
-    return null
+
+    if (!user.isActive) {
+      throw new ForbiddenException('Your account is pending approval')
+    }
+
+    return user
   }
 
   async login(user: any) {
@@ -29,8 +43,50 @@ export class AuthService {
     }
   }
 
-  async register(dto: { name: string; email: string; password: string }) {
+  private readonly registrationMode = process.env.REGISTRATION_MODE || 'invite' // "open" or "invite"
+
+  async register(dto: RegisterUserDto) {
+    if (this.registrationMode === 'invite') {
+      await this.validateInviteToken(dto.inviteToken)
+    }
+
+    const existing = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    })
+    if (existing) {
+      throw new ConflictException('Email already registered')
+    }
+
     const user = await this.userService.create(dto)
     return this.login(user)
+  }
+
+  private async validateInviteToken(token?: string) {
+    if (!token) {
+      throw new ForbiddenException('Invite token is required')
+    }
+
+    const invite = await this.prisma.inviteToken.findUnique({
+      where: { token },
+    })
+
+    if (!invite) {
+      throw new ForbiddenException('Invalid invite token')
+    }
+
+    if (invite.timeExpiration && invite.timeExpiration < new Date()) {
+      throw new ForbiddenException('Invite token has expired')
+    }
+
+    // OPTIONAL: if tokens are one-time use
+    // if (invite.used) {
+    //   throw new ForbiddenException('Invite token already used');
+    // }
+
+    // OPTIONAL: mark as used
+    // await this.prisma.inviteToken.update({
+    //   where: { token },
+    //   data: { used: true },
+    // });
   }
 }

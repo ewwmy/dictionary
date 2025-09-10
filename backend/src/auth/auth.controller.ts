@@ -18,6 +18,8 @@ import {
   THROTTLE_REGISTER_LIMIT,
   THROTTLE_REGISTER_TTL,
 } from 'src/throttler/throttler.const'
+import { RegisterUserDto } from './dto/register.user.dto'
+import { LoginUserDto } from './dto/login.user.dto'
 
 @Controller('auth')
 export class AuthController {
@@ -33,7 +35,7 @@ export class AuthController {
       limit: THROTTLE_REGISTER_LIMIT,
     },
   })
-  register(@Body() dto: { name: string; email: string; password: string }) {
+  register(@Body() dto: RegisterUserDto) {
     return this.authService.register(dto)
   }
 
@@ -45,7 +47,7 @@ export class AuthController {
       limit: THROTTLE_LOGIN_LIMIT,
     },
   })
-  async login(@Body() dto: { email: string; password: string }) {
+  async login(@Body() dto: LoginUserDto) {
     const user = await this.authService.validateUser(dto.email, dto.password)
     if (!user) throw new UnauthorizedException()
     return this.authService.login(user)

@@ -21,7 +21,7 @@ export class UserService {
   }
 
   async create(data: CreateUserDto) {
-    const hashed = await bcrypt.hash(
+    const hashedPassword = await bcrypt.hash(
       data.password,
       Number(this.config.get('PASSWORD_ROUNDS')),
     )
@@ -30,8 +30,9 @@ export class UserService {
       data: {
         name: data.name,
         email: data.email,
-        password: hashed,
+        password: hashedPassword,
         inviteTokenId: data.inviteTokenId ? data.inviteTokenId : null,
+        ...(data.isActive !== undefined ? { isActive: data.isActive } : {}),
       },
     })
   }

@@ -3,4 +3,5 @@ export class CreateUserDto {
   email: string
   password: string
   inviteTokenId?: number
+  isActive?: boolean
 }

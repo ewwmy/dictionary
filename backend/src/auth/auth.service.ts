@@ -11,13 +11,19 @@ import * as bcrypt from 'bcrypt'
 import { ConfigService } from '@nestjs/config'
 import { RegisterUserDto } from './dto/register.user.dto'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { RegistrationMode } from './constants/auth.constants'
+import {
+  RegistrationConfirm,
+  RegistrationMode,
+} from './constants/auth.constants'
 import { CreateUserDto } from 'src/user/dto/create.user.dto'
 
 @Injectable()
 export class AuthService {
   private readonly registrationMode =
     this.configService.get('REGISTRATION_MODE') || RegistrationMode.Invite
+
+  private readonly registrationConfirm =
+    this.configService.get('REGISTRATION_CONFIRM') || RegistrationConfirm.Manual
 
   constructor(
     private userService: UserService,
@@ -53,6 +59,10 @@ export class AuthService {
 
     if (this.registrationMode === RegistrationMode.Invite) {
       createUserDto.inviteTokenId = await this.validateInviteToken(inviteToken)
+    }
+
+    if (this.registrationConfirm === RegistrationConfirm.Auto) {
+      createUserDto.isActive = true
     }
 
     const existing = await this.prisma.user.findUnique({

@@ -2,6 +2,7 @@
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MaxLength,
   MinLength,
@@ -29,4 +30,8 @@ export class RegisterUserDto {
     message: 'Password is too long',
   })
   password: string
+
+  @IsString()
+  @IsOptional()
+  inviteToken?: string
 }

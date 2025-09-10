@@ -15,9 +15,9 @@ datasource db {
 
 model InviteToken {
   id             Int         @id @default(autoincrement())
-  token          String
-  timeCreate     DateTime    @default(now()) @map("time_create")
-  timeExpiration DateTime?   @map("time_expiration")
+  token          String      @unique
+  timeCreate     DateTime    @db.Timestamptz(6) @default(now()) @map("time_create")
+  timeExpiration DateTime?   @db.Timestamptz(6) @map("time_expiration")
 
   users          User[]
 
@@ -34,8 +34,8 @@ model User {
   confirmCode        String?      @map("confirm_code")
   resetPasswordToken String?      @map("reset_password_token")
   isActive           Boolean      @default(false) @map("is_active")
-  timeCreate         DateTime     @default(now()) @map("time_create")
-  timeEdit           DateTime?    @updatedAt @map("time_edit")
+  timeCreate         DateTime     @db.Timestamptz(6) @default(now()) @map("time_create")
+  timeEdit           DateTime?    @db.Timestamptz(6) @updatedAt @map("time_edit")
 
   inviteToken        InviteToken? @relation(fields: [inviteTokenId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
@@ -50,8 +50,8 @@ model Language {
   name         String
   country      String?
   flag         String?
-  timeCreate   DateTime       @default(now()) @map("time_create")
-  timeEdit     DateTime?      @updatedAt @map("time_edit")
+  timeCreate   DateTime       @db.Timestamptz(6) @default(now()) @map("time_create")
+  timeEdit     DateTime?      @db.Timestamptz(6) @updatedAt @map("time_edit")
 
   user         User           @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
@@ -104,8 +104,8 @@ model Antonym {
   wordId        Int         @map("word_id")
   antonymId     Int         @map("antonym_id")
   description   String?     @db.Text
-  timeCreate    DateTime    @default(now()) @map("time_create")
-  timeEdit      DateTime?   @updatedAt @map("time_edit")
+  timeCreate    DateTime    @db.Timestamptz(6) @default(now()) @map("time_create")
+  timeEdit      DateTime?   @db.Timestamptz(6) @updatedAt @map("time_edit")
 
   word          Word        @relation("antonym_word", fields: [wordId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   antonym       Word        @relation("antonym_antonym", fields: [antonymId], references: [id], onUpdate: Cascade, onDelete: Cascade)
@@ -118,8 +118,8 @@ model Synonym {
   wordId        Int         @map("word_id")
   synonymId     Int         @map("synonym_id")
   description   String?     @db.Text
-  timeCreate    DateTime    @default(now()) @map("time_create")
-  timeEdit      DateTime?   @updatedAt @map("time_edit")
+  timeCreate    DateTime    @db.Timestamptz(6) @default(now()) @map("time_create")
+  timeEdit      DateTime?   @db.Timestamptz(6) @updatedAt @map("time_edit")
 
   word          Word        @relation("synonym_word", fields: [wordId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   synonym       Word        @relation("synonym_synonym", fields: [synonymId], references: [id], onUpdate: Cascade, onDelete: Cascade)
@@ -142,8 +142,8 @@ model Word {
   transcriptionStrict     String?     @map("transcription_strict")
   transcriptionPhonetic   String?     @map("transcription_phonetic")
   isFavorite              Boolean     @default(false) @map("is_favorite")
-  timeCreate              DateTime    @default(now()) @map("time_create")
-  timeEdit                DateTime?   @updatedAt @map("time_edit")
+  timeCreate              DateTime    @db.Timestamptz(6) @default(now()) @map("time_create")
+  timeEdit                DateTime?   @db.Timestamptz(6) @updatedAt @map("time_edit")
 
   language                Language    @relation(fields: [languageId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   level                   Level?      @relation(fields: [levelId], references: [id], onUpdate: Cascade, onDelete: Cascade)
@@ -179,8 +179,8 @@ model Example {
   example       String
   translation   String?
   description   String?
-  timeCreate    DateTime    @default(now()) @map("time_create")
-  timeEdit      DateTime?   @updatedAt @map("time_edit")
+  timeCreate    DateTime    @db.Timestamptz(6) @default(now()) @map("time_create")
+  timeEdit      DateTime?   @db.Timestamptz(6) @updatedAt @map("time_edit")
 
   word          Word        @relation(fields: [wordId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 

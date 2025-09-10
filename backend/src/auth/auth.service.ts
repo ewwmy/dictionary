@@ -11,9 +11,20 @@ import * as bcrypt from 'bcrypt'
 import { ConfigService } from '@nestjs/config'
 import { RegisterUserDto } from './dto/register.user.dto'
 import { PrismaService } from 'src/prisma/prisma.service'
+import {
+  RegistrationConfirm,
+  RegistrationMode,
+} from './constants/auth.constants'
+import { CreateUserDto } from 'src/user/dto/create.user.dto'
 
 @Injectable()
 export class AuthService {
+  private readonly registrationMode =
+    this.configService.get('REGISTRATION_MODE') || RegistrationMode.Invite
+
+  private readonly registrationConfirm =
+    this.configService.get('REGISTRATION_CONFIRM') || RegistrationConfirm.Manual
+
   constructor(
     private userService: UserService,
     private configService: ConfigService,
@@ -43,11 +54,15 @@ export class AuthService {
     }
   }
 
-  private readonly registrationMode = process.env.REGISTRATION_MODE || 'invite' // "open" or "invite"
+  async register(dto: RegisterUserDto, inviteToken?: string) {
+    const createUserDto: CreateUserDto = dto
 
-  async register(dto: RegisterUserDto) {
-    if (this.registrationMode === 'invite') {
-      await this.validateInviteToken(dto.inviteToken)
+    if (this.registrationMode === RegistrationMode.Invite) {
+      createUserDto.inviteTokenId = await this.validateInviteToken(inviteToken)
+    }
+
+    if (this.registrationConfirm === RegistrationConfirm.Auto) {
+      createUserDto.isActive = true
     }
 
     const existing = await this.prisma.user.findUnique({
@@ -57,7 +72,7 @@ export class AuthService {
       throw new ConflictException('Email already registered')
     }
 
-    const user = await this.userService.create(dto)
+    const user = await this.userService.create(createUserDto)
     return this.login(user)
   }
 
@@ -78,15 +93,16 @@ export class AuthService {
       throw new ForbiddenException('Invite token has expired')
     }
 
-    // OPTIONAL: if tokens are one-time use
-    // if (invite.used) {
-    //   throw new ForbiddenException('Invite token already used');
-    // }
+    if (invite.isUsed) {
+      throw new ForbiddenException('Invite token already used')
+    }
 
-    // OPTIONAL: mark as used
-    // await this.prisma.inviteToken.update({
-    //   where: { token },
-    //   data: { used: true },
-    // });
+    // mark as used
+    await this.prisma.inviteToken.update({
+      where: { token },
+      data: { isUsed: true },
+    })
+
+    return invite.id
   }
 }

@@ -18,6 +18,7 @@ model InviteToken {
   token          String      @unique
   timeCreate     DateTime    @db.Timestamptz(6) @default(now()) @map("time_create")
   timeExpiration DateTime?   @db.Timestamptz(6) @map("time_expiration")
+  isUsed         Boolean     @default(false) @map("is_used")
 
   users          User[]
 
@@ -37,7 +38,7 @@ model User {
   timeCreate         DateTime     @db.Timestamptz(6) @default(now()) @map("time_create")
   timeEdit           DateTime?    @db.Timestamptz(6) @updatedAt @map("time_edit")
 
-  inviteToken        InviteToken? @relation(fields: [inviteTokenId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  inviteToken        InviteToken? @relation(fields: [inviteTokenId], references: [id], onUpdate: Cascade, onDelete: SetNull)
 
   languages          Language[]
 

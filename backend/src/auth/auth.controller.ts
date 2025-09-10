@@ -7,6 +7,7 @@ import {
   Get,
   Request,
   HttpCode,
+  Query,
 } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 import { AuthService } from './auth.service'
@@ -35,8 +36,11 @@ export class AuthController {
       limit: THROTTLE_REGISTER_LIMIT,
     },
   })
-  register(@Body() dto: RegisterUserDto) {
-    return this.authService.register(dto)
+  register(
+    @Body() dto: RegisterUserDto,
+    @Query('invite_token') inviteToken?: string,
+  ) {
+    return this.authService.register(dto, inviteToken)
   }
 
   @Post('login')

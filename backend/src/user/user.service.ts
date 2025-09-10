@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service'
 
 import * as bcrypt from 'bcrypt'
 import { ConfigService } from '@nestjs/config'
-import { RegisterUserDto } from 'src/auth/dto/register.user.dto'
+import { CreateUserDto } from './dto/create.user.dto'
 
 @Injectable()
 export class UserService {
@@ -20,7 +20,7 @@ export class UserService {
     return this.prisma.user.findUnique({ where: { email } })
   }
 
-  async create(data: RegisterUserDto) {
+  async create(data: CreateUserDto) {
     const hashed = await bcrypt.hash(
       data.password,
       Number(this.config.get('PASSWORD_ROUNDS')),
@@ -31,6 +31,7 @@ export class UserService {
         name: data.name,
         email: data.email,
         password: hashed,
+        inviteTokenId: data.inviteTokenId ? data.inviteTokenId : null,
       },
     })
   }

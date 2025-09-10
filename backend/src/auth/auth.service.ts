@@ -12,7 +12,6 @@ import { ConfigService } from '@nestjs/config'
 import { RegisterUserDto } from './dto/register.user.dto'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { RegistrationMode } from './constants/auth.constants'
-import { instanceToInstance } from 'class-transformer'
 import { CreateUserDto } from 'src/user/dto/create.user.dto'
 
 @Injectable()
@@ -49,12 +48,11 @@ export class AuthService {
     }
   }
 
-  async register(dto: RegisterUserDto) {
-    const createUserDto = instanceToInstance<CreateUserDto>(dto)
+  async register(dto: RegisterUserDto, inviteToken?: string) {
+    const createUserDto: CreateUserDto = dto
+
     if (this.registrationMode === RegistrationMode.Invite) {
-      createUserDto.inviteTokenId = await this.validateInviteToken(
-        dto.inviteToken,
-      )
+      createUserDto.inviteTokenId = await this.validateInviteToken(inviteToken)
     }
 
     const existing = await this.prisma.user.findUnique({

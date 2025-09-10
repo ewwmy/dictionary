@@ -4,6 +4,7 @@ import { UserService } from 'src/user/user.service'
 
 import * as bcrypt from 'bcrypt'
 import { ConfigService } from '@nestjs/config'
+import { RegisterUserDto } from './dto/register.user.dto'
 
 @Injectable()
 export class AuthService {
@@ -13,9 +14,9 @@ export class AuthService {
     private jwt: JwtService,
   ) {}
 
-  async validateUser(email: string, pass: string) {
+  async validateUser(email: string, password: string) {
     const user = await this.userService.findByEmail(email)
-    if (user && (await bcrypt.compare(pass, user.password))) {
+    if (user && (await bcrypt.compare(password, user.password))) {
       const { password, ...result } = user
       return result
     }
@@ -29,7 +30,7 @@ export class AuthService {
     }
   }
 
-  async register(dto: { name: string; email: string; password: string }) {
+  async register(dto: RegisterUserDto) {
     const user = await this.userService.create(dto)
     return this.login(user)
   }

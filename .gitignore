@@ -46,8 +46,8 @@ coverage
 !.env*.example
 
 # temp directories and files
-.temp
-.tmp
+*.temp
+*.tmp
 *.bkp
 *.dtmp
 

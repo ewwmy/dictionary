@@ -6,9 +6,10 @@
 entity invite_tokens {
   * id : INT <<PK>> <<AI>>
   ---
-  * token : STRING
+  * token : STRING <<UK>>
   * time_create : TIMESTAMP
   time_expiration : TIMESTAMP
+  * is_used : BOOLEAN = 0
 }
 
 entity users {
@@ -16,6 +17,7 @@ entity users {
   ---
   invite_token_id : INT <<FK>>
   ---
+  * role : ENUM('user', 'admin') = 'user'
   * name : STRING
   * email : STRING <<UK>>
   * password : STRING

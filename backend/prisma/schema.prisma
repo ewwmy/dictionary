@@ -28,6 +28,7 @@ model InviteToken {
 model User {
   id                 Int          @id @default(autoincrement())
   inviteTokenId      Int?         @map("invite_token_id")
+  role               Role         @default(User)
   name               String
   email              String       @unique
   password           String
@@ -186,4 +187,9 @@ model Example {
   word          Word        @relation(fields: [wordId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@map("examples")
+}
+
+enum Role {
+  User          @map("user")
+  Admin         @map("admin")
 }

@@ -1,0 +1,26 @@
+POST /auth/register                              # register user
+POST /auth/login                                 # login
+GET /auth/me                                     # chech authentication
+
+GET /admin/users                                 # get all users
+GET /admin/users/pending                         # get pending users (inactive)
+POST /admin/users/:id/activate                   # activate user
+POST /admin/users/:id/deactivate                 # deactivate user
+DELETE /admin/users/:id                          # delete user
+
+GET /admin/tokens?page=5&limit=10                # get tokens
+POST /admin/tokens                               # create token
+POST /admin/tokens/generate?amount=100           # generate token(s)
+PATCH /admin/tokens/:id                          # update token
+DELETE /admin/tokens/:id                         # delete token
+DELETE /admin/tokens                             # delete all unused tokens
+
+GET /languages                                   # get all languages
+GET /language/:id                                # get one language
+POST /languages?recommended_data=true            # create language
+PATCH /languages/:id                             # update language
+DELETE /languages/:id                            # delete language
+
+GET /profile                                     # get user info (self)
+PUT /profile                                     # update user info (self)
+DEELTE /profile                                  # delete user (self)

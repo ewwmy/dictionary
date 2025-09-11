@@ -9,7 +9,6 @@ import {
   HttpCode,
   Query,
 } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
 import { AuthService } from './auth.service'
 import { Throttle } from '@nestjs/throttler'
 import { ConfigService } from '@nestjs/config'
@@ -21,6 +20,7 @@ import {
 } from 'src/throttler/throttler.const'
 import { RegisterUserDto } from './dto/register.user.dto'
 import { LoginUserDto } from './dto/login.user.dto'
+import { JwtAuthGuard } from './jwt-auth.guard'
 
 @Controller('auth')
 export class AuthController {
@@ -57,7 +57,7 @@ export class AuthController {
     return this.authService.login(user)
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Get('me')
   getMe(@Request() req) {
     return req.user

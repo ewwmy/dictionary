@@ -20,10 +20,7 @@ import {
 } from 'src/throttler/throttler.const'
 import { RegisterUserDto } from './dto/register.user.dto'
 import { LoginUserDto } from './dto/login.user.dto'
-import { Role } from '@prisma/client'
-import { Roles } from 'src/roles/roles.decorator'
 import { JwtAuthGuard } from './jwt-auth.guard'
-import { RolesGuard } from 'src/roles/roles.guard'
 
 @Controller('auth')
 export class AuthController {
@@ -60,8 +57,7 @@ export class AuthController {
     return this.authService.login(user)
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(JwtAuthGuard)
   @Get('me')
   getMe(@Request() req) {
     return req.user

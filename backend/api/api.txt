@@ -2,6 +2,8 @@ POST /auth/register                              # register user
 POST /auth/login                                 # login
 GET /auth/me                                     # chech authentication
 
+POST /admin/restore                              # restore admin user (predefined credentials)
+
 GET /admin/users                                 # get all users
 GET /admin/users/pending                         # get pending users (inactive)
 POST /admin/users/:id/activate                   # activate user
@@ -9,9 +11,8 @@ POST /admin/users/:id/deactivate                 # deactivate user
 DELETE /admin/users/:id                          # delete user
 
 GET /admin/tokens?page=5&limit=10                # get tokens
-POST /admin/tokens                               # create token
-POST /admin/tokens/generate?amount=100           # generate token(s)
-PATCH /admin/tokens/:id                          # update token
+GET /admin/tokens/:id                            # get token
+POST /admin/tokens?amount=100                    # generate token(s)
 DELETE /admin/tokens/:id                         # delete token
 DELETE /admin/tokens                             # delete all unused tokens
 

@@ -36,7 +36,7 @@ export class AdminUsersController {
   }
 
   constructor(
-    private readonly adminService: AdminUsersService,
+    private readonly usersService: AdminUsersService,
     private readonly prisma: PrismaService,
   ) {}
 

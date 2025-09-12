@@ -23,5 +23,5 @@ PATCH /languages/:id                             # update language
 DELETE /languages/:id                            # delete language
 
 GET /profile                                     # get user info (self)
-PUT /profile                                     # update user info (self)
+PATCH /profile                                   # update user info (self)
 DEELTE /profile                                  # delete user (self)

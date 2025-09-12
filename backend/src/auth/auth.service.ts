@@ -71,7 +71,11 @@ export class AuthService {
     }
 
     const user = await this.userService.create(createUserDto)
-    return this.login(user)
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    }
   }
 
   private async validateInviteToken(token?: string) {

@@ -20,8 +20,9 @@ import { AdminTokensService } from './admin.tokens.service'
 
 import { randomUUID } from 'crypto'
 import { Messages } from 'src/messages/messages.const'
+import { ActiveUserGuard } from 'src/auth/is-active.guard'
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, ActiveUserGuard)
 @Roles(Role.Admin)
 @Controller('admin/tokens')
 export class AdminTokensController {

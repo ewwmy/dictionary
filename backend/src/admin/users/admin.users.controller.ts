@@ -18,8 +18,9 @@ import { RolesGuard } from 'src/roles/roles.guard'
 import { AdminUsersService } from './admin.users.service'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { Messages } from 'src/messages/messages.const'
+import { ActiveUserGuard } from 'src/auth/is-active.guard'
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, ActiveUserGuard)
 @Roles(Role.Admin)
 @Controller('admin/users')
 export class AdminUsersController {

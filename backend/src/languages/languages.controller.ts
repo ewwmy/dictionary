@@ -20,8 +20,9 @@ import { PrismaService } from 'src/prisma/prisma.service'
 import { CreateLanguageDto } from './dto/create-language.dto'
 import { Messages } from 'src/messages/messages.const'
 import { UpdateLanguageDto } from './dto/update-language.dto'
+import { ActiveUserGuard } from 'src/auth/is-active.guard'
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ActiveUserGuard)
 @Controller('languages')
 export class LanguagesController {
   constructor(private readonly prisma: PrismaService) {}

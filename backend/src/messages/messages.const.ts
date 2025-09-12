@@ -1,7 +1,7 @@
 export const Messages = {
   AUTH: {
     INVALID_CREDENTIALS: 'Invalid credentials',
-    PENDING_APPROVAL: 'Your account is pending approval',
+    PENDING_APPROVAL: 'Your account is pending approval or disabled',
     EMAIL_CONFLICT: 'Email already registered',
     TOKEN_REQUIRED: 'Invite token is required',
     TOKEN_INVALID: 'Invalid invite token',
@@ -30,6 +30,8 @@ export const Messages = {
     NAME_TOO_LONG: 'Name is too long',
     PASSWORD_TOO_SHORT: 'Password is too short',
     PASSWORD_TOO_LONG: 'Password is too long',
+    NOT_FOUND: 'User not found',
+    FORBIDDEN: 'You can only access your own profile',
   },
   PAGINATION: {
     PAGE_LESS_ERROR: (n: number) => `Page cannot be less than ${n}`,

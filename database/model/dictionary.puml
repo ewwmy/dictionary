@@ -32,9 +32,9 @@ entity users {
 entity languages {
   * id : INT <<PK>> <<AI>>
   ---
-  * user_id : INT <<FK>>
+  * user_id : INT <<FK>> <<UK1>>
   ---
-  * name : STRING
+  * name : STRING <<UK1>>
   country : STRING
   flag : STRING
   * time_create : TIMESTAMP

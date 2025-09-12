@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module'
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { APP_GUARD } from '@nestjs/core'
 import { AdminModule } from './admin/admin.module'
+import { LanguagesModule } from './languages/languages.module'
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { AdminModule } from './admin/admin.module'
     UserModule,
     AuthModule,
     AdminModule,
+    LanguagesModule,
   ],
   controllers: [AppController],
   providers: [

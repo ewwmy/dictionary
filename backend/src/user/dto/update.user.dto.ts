@@ -1,14 +1,8 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-  MaxLength,
-  MinLength,
-} from 'class-validator'
+import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator'
 import { Constants } from 'src/constants/constants'
 import { Messages } from 'src/messages/messages.const'
 
-export class RegisterUserDto {
+export class UpdateUserDto {
   @IsString()
   @MinLength(Constants.USERNAME_MIN_LENGTH, {
     message: Messages.USER.NAME_TOO_SHORT,
@@ -16,12 +10,8 @@ export class RegisterUserDto {
   @MaxLength(Constants.USERNAME_MAX_LENGTH, {
     message: Messages.USER.NAME_TOO_LONG,
   })
-  @IsNotEmpty()
+  @IsOptional()
   name: string
-
-  @IsEmail()
-  @IsNotEmpty()
-  email: string
 
   @IsString()
   @MinLength(Constants.PASSWORD_MIN_LENGTH, {
@@ -30,6 +20,6 @@ export class RegisterUserDto {
   @MaxLength(Constants.PASSWORD_MAX_LENGTH, {
     message: Messages.USER.PASSWORD_TOO_LONG,
   })
-  @IsNotEmpty()
+  @IsOptional()
   password: string
 }

@@ -8,8 +8,8 @@ RUN npm ci
 
 COPY . .
 
-RUN npm run build
 RUN npx prisma generate
+RUN npm run build
 
 EXPOSE ${APP_DOCKER_PORT:-3000}
 

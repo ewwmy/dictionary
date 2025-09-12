@@ -11,11 +11,9 @@ import * as bcrypt from 'bcrypt'
 import { ConfigService } from '@nestjs/config'
 import { RegisterUserDto } from './dto/register.user.dto'
 import { PrismaService } from 'src/prisma/prisma.service'
-import {
-  RegistrationConfirm,
-  RegistrationMode,
-} from './constants/auth.constants'
+import { RegistrationConfirm, RegistrationMode } from './auth.const'
 import { CreateUserDto } from 'src/user/dto/create.user.dto'
+import { Messages } from 'src/messages/messages.const'
 
 @Injectable()
 export class AuthService {
@@ -37,11 +35,11 @@ export class AuthService {
     const isPasswordValid = await bcrypt.compare(password, user.password)
 
     if (!user || !isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials')
+      throw new UnauthorizedException(Messages.AUTH.INVALID_CREDENTIALS)
     }
 
     if (!user.isActive) {
-      throw new ForbiddenException('Your account is pending approval')
+      throw new ForbiddenException(Messages.AUTH.PENDING_APPROVAL)
     }
 
     return user
@@ -69,7 +67,7 @@ export class AuthService {
       where: { email: dto.email },
     })
     if (existing) {
-      throw new ConflictException('Email already registered')
+      throw new ConflictException(Messages.AUTH.EMAIL_CONFLICT)
     }
 
     const user = await this.userService.create(createUserDto)
@@ -78,7 +76,7 @@ export class AuthService {
 
   private async validateInviteToken(token?: string) {
     if (!token) {
-      throw new ForbiddenException('Invite token is required')
+      throw new ForbiddenException(Messages.AUTH.TOKEN_REQUIRED)
     }
 
     const invite = await this.prisma.inviteToken.findUnique({
@@ -86,15 +84,15 @@ export class AuthService {
     })
 
     if (!invite) {
-      throw new ForbiddenException('Invalid invite token')
+      throw new ForbiddenException(Messages.AUTH.TOKEN_INVALID)
     }
 
     if (invite.timeExpiration && invite.timeExpiration < new Date()) {
-      throw new ForbiddenException('Invite token has expired')
+      throw new ForbiddenException(Messages.AUTH.TOKEN_EXPIRED)
     }
 
     if (invite.isUsed) {
-      throw new ForbiddenException('Invite token already used')
+      throw new ForbiddenException(Messages.AUTH.TOKEN_USED)
     }
 
     // mark as used

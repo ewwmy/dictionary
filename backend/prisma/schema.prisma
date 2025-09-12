@@ -61,6 +61,8 @@ model Language {
   words        Word[]
   level        Level[]
 
+  @@unique([userId, name])
+
   @@map("languages")
 }
 

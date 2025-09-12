@@ -19,6 +19,7 @@ import { PrismaService } from 'src/prisma/prisma.service'
 import { AdminTokensService } from './admin.tokens.service'
 
 import { randomUUID } from 'crypto'
+import { Messages } from 'src/messages/messages.const'
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.Admin)
@@ -36,21 +37,21 @@ export class AdminTokensController {
       },
     })
     if (!candidate) {
-      throw new NotFoundException('Token not found')
+      throw new NotFoundException(Messages.ADMIN.TOKEN.NOT_FOUND)
     }
     return candidate
   }
 
   @Get()
   getAll(
-    @Query('page', new DefaultValuePipe(1)) page,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit,
   ) {
     if (page < 1) {
-      throw new BadRequestException('Page cannot be less than 1')
+      throw new BadRequestException(Messages.PAGINATION.PAGE_LESS_ERROR(1))
     }
     if (limit < 1) {
-      throw new BadRequestException('Limit cannot be less than 1')
+      throw new BadRequestException(Messages.PAGINATION.LIMIT_LESS_ERROR(1))
     }
     return this.prisma.inviteToken.findMany({
       skip: (page - 1) * limit,
@@ -68,10 +69,10 @@ export class AdminTokensController {
     @Query('amount', new DefaultValuePipe(1), ParseIntPipe) amount,
   ) {
     if (amount < 1) {
-      throw new BadRequestException('Amount cannot be less than 1')
+      throw new BadRequestException(Messages.ADMIN.TOKEN.AMOUNT_LESS_ERROR(1))
     }
     if (amount > 100) {
-      throw new BadRequestException('Amount cannot be more than 100')
+      throw new BadRequestException(Messages.ADMIN.TOKEN.AMOUNT_MORE_ERROR(100))
     }
     const tokens = await this.prisma.$transaction(
       Array.from({ length: amount }, () =>

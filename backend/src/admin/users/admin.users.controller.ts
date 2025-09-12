@@ -17,6 +17,7 @@ import { Roles } from 'src/roles/roles.decorator'
 import { RolesGuard } from 'src/roles/roles.guard'
 import { AdminUsersService } from './admin.users.service'
 import { PrismaService } from 'src/prisma/prisma.service'
+import { Messages } from 'src/messages/messages.const'
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.Admin)
@@ -47,7 +48,7 @@ export class AdminUsersController {
       },
     })
     if (!candidate) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundException(Messages.ADMIN.USER.NOT_FOUND)
     }
     return candidate
   }
@@ -102,7 +103,7 @@ export class AdminUsersController {
   @Delete(':id')
   async deleteUser(@Param('id', ParseIntPipe) id: number, @Request() req) {
     if (req?.user?.id === id) {
-      throw new ConflictException('You cannot delete yourself')
+      throw new ConflictException(Messages.ADMIN.USER.SELF_DELETION)
     }
     await this.getCandidate(id)
     return this.prisma.user.delete({

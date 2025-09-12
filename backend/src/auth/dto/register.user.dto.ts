@@ -5,15 +5,17 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator'
+import { Messages } from 'src/messages/messages.const'
 
 export class RegisterUserDto {
   @IsString()
   @MinLength(3, {
-    message: 'Name is too short',
+    message: Messages.USER.NAME_TOO_SHORT,
   })
   @MaxLength(50, {
-    message: 'Name is too long',
+    message: Messages.USER.NAME_TOO_LONG,
   })
+  @IsNotEmpty()
   name: string
 
   @IsEmail()
@@ -22,10 +24,11 @@ export class RegisterUserDto {
 
   @IsString()
   @MinLength(8, {
-    message: 'Password is too short',
+    message: Messages.USER.PASSWORD_TOO_SHORT,
   })
   @MaxLength(128, {
-    message: 'Password is too long',
+    message: Messages.USER.PASSWORD_TOO_LONG,
   })
+  @IsNotEmpty()
   password: string
 }

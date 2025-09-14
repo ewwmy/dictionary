@@ -22,9 +22,10 @@ POST /languages?recommended_data=true            # create language
 PATCH /languages/:id                             # update language
 DELETE /languages/:id                            # delete language
 
-GET /words                                       # get all words
+GET /languages/:id/words?page=5&limit=10         # get all words
 GET /words/:id                                   # get one word
-POST /words                                      # create word
+POST /words/search                               # search
+POST /languages/:id/words                        # create word
 PATCH /words/:id                                 # update word
 DELETE /words/:id                                # delete word
 

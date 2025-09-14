@@ -3,10 +3,8 @@ import {
   ConflictException,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   HttpCode,
-  NotFoundException,
   Param,
   Patch,
   Post,
@@ -25,6 +23,7 @@ import { CreateWordDto } from './dto/create-word.dto'
 import { LanguagesService } from 'src/languages/languages.service'
 import { SearchWordDto } from './dto/search-word.dto'
 import { UpdateWordDto } from './dto/update-word.dto'
+import { PaginationOptionalDto } from 'src/pagination/pagination.optional.dto'
 
 @UseGuards(JwtAuthGuard, ActiveUserGuard)
 @Controller()
@@ -77,13 +76,16 @@ export class WordsController {
 
   @HttpCode(200)
   @Post('words/search')
-  async getOneByName(
+  async search(
     @Body() dto: SearchWordDto,
+    @Query() query: PaginationOptionalDto,
     @CurrentUser('id') userId: number,
   ) {
     if (dto.languageId) {
       await this.languagesService.getCandidate(dto.languageId, userId)
     }
+
+    const { skip, take } = getPagination(query)
 
     return await this.prisma.word.findMany({
       where: {
@@ -92,15 +94,17 @@ export class WordsController {
           in: (await this.languagesService.getAll(userId)).map(l => l.id),
         },
         OR: [
-          { word: { contains: dto.search } },
-          { word2: { contains: dto.search } },
-          { word3: { contains: dto.search } },
-          { translation: { contains: dto.search } },
+          { word: { contains: dto.search, mode: 'insensitive' } },
+          { word2: { contains: dto.search, mode: 'insensitive' } },
+          { word3: { contains: dto.search, mode: 'insensitive' } },
+          { translation: { contains: dto.search, mode: 'insensitive' } },
         ],
       },
       include: {
         ...(!dto.languageId && { language: true }),
       },
+      skip,
+      take,
     })
   }
 

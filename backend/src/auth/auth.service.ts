@@ -32,9 +32,14 @@ export class AuthService {
 
   async validateUser(email: string, password: string) {
     const user = await this.userService.findByEmail(email)
+
+    if (!user) {
+      throw new UnauthorizedException(Messages.AUTH.INVALID_CREDENTIALS)
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password)
 
-    if (!user || !isPasswordValid) {
+    if (!isPasswordValid) {
       throw new UnauthorizedException(Messages.AUTH.INVALID_CREDENTIALS)
     }
 
@@ -99,7 +104,6 @@ export class AuthService {
       throw new ForbiddenException(Messages.AUTH.TOKEN_USED)
     }
 
-    // mark as used
     await this.prisma.inviteToken.update({
       where: { token },
       data: { isUsed: true },

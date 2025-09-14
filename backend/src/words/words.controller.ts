@@ -35,24 +35,6 @@ export class WordsController {
     private readonly prisma: PrismaService,
   ) {}
 
-  private async getCandidate(id: number, userId: number) {
-    const candidate = await this.prisma.word.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        language: true,
-      },
-    })
-    if (!candidate) {
-      throw new NotFoundException(Messages.WORD.NOT_FOUND)
-    }
-    if (candidate.language.userId !== userId) {
-      throw new ForbiddenException(Messages.WORD.FORBIDDEN)
-    }
-    return candidate
-  }
-
   @Get('languages/:id/words')
   async getAll(
     @Param('id') languageId: number,
@@ -90,7 +72,7 @@ export class WordsController {
 
   @Get('words/:id')
   getOne(@Param('id') id: number, @CurrentUser('id') userId: number) {
-    return this.getCandidate(id, userId)
+    return this.wordsService.getCandidate(id, userId)
   }
 
   @HttpCode(200)
@@ -158,7 +140,7 @@ export class WordsController {
     @Body() dto: UpdateWordDto,
     @CurrentUser('id') userId: number,
   ) {
-    await this.getCandidate(id, userId)
+    await this.wordsService.getCandidate(id, userId)
     return this.prisma.word.update({
       where: {
         id,
@@ -171,7 +153,7 @@ export class WordsController {
 
   @Delete('words/:id')
   async delete(@Param('id') id: number, @CurrentUser('id') userId: number) {
-    await this.getCandidate(id, userId)
+    await this.wordsService.getCandidate(id, userId)
     return this.prisma.word.delete({
       where: {
         id,

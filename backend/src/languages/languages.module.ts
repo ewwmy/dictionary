@@ -7,5 +7,6 @@ import { PrismaModule } from 'src/prisma/prisma.module'
   imports: [PrismaModule],
   providers: [LanguagesService],
   controllers: [LanguagesController],
+  exports: [LanguagesService],
 })
 export class LanguagesModule {}

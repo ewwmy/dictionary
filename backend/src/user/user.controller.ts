@@ -23,6 +23,7 @@ export class UserController {
     id: true,
     name: true,
     email: true,
+    settings: true,
     confirmCode: true,
     resetPasswordToken: true,
     isActive: true,

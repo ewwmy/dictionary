@@ -3,7 +3,6 @@ import {
   Get,
   NotFoundException,
   Param,
-  ParseIntPipe,
   UseGuards,
   Query,
   BadRequestException,
@@ -21,6 +20,8 @@ import { AdminTokensService } from './admin.tokens.service'
 import { randomUUID } from 'crypto'
 import { Messages } from 'src/messages/messages.const'
 import { ActiveUserGuard } from 'src/auth/is-active.guard'
+import { getPagination } from 'src/pagination/pagination.helper'
+import { PaginationOptionalDto } from 'src/pagination/pagination.optional.dto'
 
 @UseGuards(JwtAuthGuard, RolesGuard, ActiveUserGuard)
 @Roles(Role.Admin)
@@ -44,31 +45,21 @@ export class AdminTokensController {
   }
 
   @Get()
-  getAll(
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page,
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit,
-  ) {
-    if (page < 1) {
-      throw new BadRequestException(Messages.PAGINATION.PAGE_LESS_ERROR(1))
-    }
-    if (limit < 1) {
-      throw new BadRequestException(Messages.PAGINATION.LIMIT_LESS_ERROR(1))
-    }
+  getAll(@Query() query: PaginationOptionalDto) {
+    const { skip, take } = getPagination(query)
     return this.prisma.inviteToken.findMany({
-      skip: (page - 1) * limit,
-      take: limit,
+      skip,
+      take,
     })
   }
 
   @Get(':id')
-  getOne(@Param('id', ParseIntPipe) id: number) {
+  getOne(@Param('id') id: number) {
     return this.getCandidate(id)
   }
 
   @Post()
-  async generate(
-    @Query('amount', new DefaultValuePipe(1), ParseIntPipe) amount,
-  ) {
+  async generate(@Query('amount', new DefaultValuePipe(1)) amount) {
     if (amount < 1) {
       throw new BadRequestException(Messages.ADMIN.TOKEN.AMOUNT_LESS_ERROR(1))
     }
@@ -86,7 +77,7 @@ export class AdminTokensController {
   }
 
   @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) id: number) {
+  async delete(@Param('id') id: number) {
     await this.getCandidate(id)
     return this.prisma.inviteToken.delete({
       where: {

@@ -8,10 +8,8 @@ import {
   HttpCode,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
-  Query,
   UseGuards,
 } from '@nestjs/common'
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator'
@@ -21,26 +19,15 @@ import { CreateLanguageDto } from './dto/create-language.dto'
 import { Messages } from 'src/messages/messages.const'
 import { UpdateLanguageDto } from './dto/update-language.dto'
 import { ActiveUserGuard } from 'src/auth/is-active.guard'
+import { LanguagesService } from './languages.service'
 
 @UseGuards(JwtAuthGuard, ActiveUserGuard)
 @Controller('languages')
 export class LanguagesController {
-  constructor(private readonly prisma: PrismaService) {}
-
-  private async getCandidate(id: number, userId: number) {
-    const candidate = await this.prisma.language.findUnique({
-      where: {
-        id,
-      },
-    })
-    if (!candidate) {
-      throw new NotFoundException(Messages.LANGUAGE.NOT_FOUND)
-    }
-    if (candidate.userId !== userId) {
-      throw new ForbiddenException(Messages.LANGUAGE.FORBIDDEN)
-    }
-    return candidate
-  }
+  constructor(
+    private readonly languagesService: LanguagesService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @Get()
   getAll(@CurrentUser('id') userId: number) {
@@ -52,11 +39,8 @@ export class LanguagesController {
   }
 
   @Get(':id')
-  getOne(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser('id') userId: number,
-  ) {
-    return this.getCandidate(id, userId)
+  getOne(@Param('id') id: number, @CurrentUser('id') userId: number) {
+    return this.languagesService.getCandidate(id, userId)
   }
 
   @HttpCode(200)
@@ -88,11 +72,11 @@ export class LanguagesController {
 
   @Patch(':id')
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: number,
     @Body() dto: UpdateLanguageDto,
     @CurrentUser('id') userId: number,
   ) {
-    await this.getCandidate(id, userId)
+    await this.languagesService.getCandidate(id, userId)
 
     return this.prisma.language.update({
       where: {
@@ -105,11 +89,8 @@ export class LanguagesController {
   }
 
   @Delete(':id')
-  async delete(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser('id') userId: number,
-  ) {
-    await this.getCandidate(id, userId)
+  async delete(@Param('id') id: number, @CurrentUser('id') userId: number) {
+    await this.languagesService.getCandidate(id, userId)
     return this.prisma.language.delete({
       where: {
         id,

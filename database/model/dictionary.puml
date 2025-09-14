@@ -88,12 +88,12 @@ entity synonyms {
 entity words {
   * id : INT <<PK>> <<AI>>
   ---
-  * language_id : INT <<FK>>
+  * language_id : INT <<FK>> <<UK1>>
   level_id : INT <<FK>>
   ---
   formality : INT
   complexity : INT
-  * word : STRING
+  * word : STRING <<UK1>>
   word_v2 : STRING
   word_v3 : STRING
   translation : STRING

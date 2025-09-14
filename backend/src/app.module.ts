@@ -9,6 +9,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { APP_GUARD } from '@nestjs/core'
 import { AdminModule } from './admin/admin.module'
 import { LanguagesModule } from './languages/languages.module'
+import { WordsModule } from './words/words.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { LanguagesModule } from './languages/languages.module'
     AuthModule,
     AdminModule,
     LanguagesModule,
+    WordsModule,
   ],
   controllers: [AppController],
   providers: [

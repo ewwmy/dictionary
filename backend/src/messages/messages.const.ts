@@ -25,6 +25,11 @@ export const Messages = {
     NAME_CONFLICT: 'Language with this name already exists',
     NAME_TOO_LONG: 'Language name is too long',
   },
+  WORD: {
+    NOT_FOUND: 'Word not found',
+    FORBIDDEN: 'You can only access your own words',
+    NAME_CONFLICT: 'Word with this name already exists',
+  },
   USER: {
     NAME_TOO_SHORT: 'Name is too short',
     NAME_TOO_LONG: 'Name is too long',
@@ -36,5 +41,6 @@ export const Messages = {
   PAGINATION: {
     PAGE_LESS_ERROR: (n: number) => `Page cannot be less than ${n}`,
     LIMIT_LESS_ERROR: (n: number) => `Limit cannot be less than ${n}`,
+    UNKNOWN_DTO_TYPE: 'Unknown pagination dto type',
   },
 }

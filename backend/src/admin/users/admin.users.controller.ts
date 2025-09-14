@@ -5,10 +5,8 @@ import {
   HttpCode,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Post,
   UseGuards,
-  Request,
   ConflictException,
 } from '@nestjs/common'
 import { Role } from '@prisma/client'
@@ -19,6 +17,7 @@ import { AdminUsersService } from './admin.users.service'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { Messages } from 'src/messages/messages.const'
 import { ActiveUserGuard } from 'src/auth/is-active.guard'
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator'
 
 @UseGuards(JwtAuthGuard, RolesGuard, ActiveUserGuard)
 @Roles(Role.Admin)
@@ -73,7 +72,7 @@ export class AdminUsersController {
 
   @HttpCode(200)
   @Post(':id/activate')
-  async activateUser(@Param('id', ParseIntPipe) id: number) {
+  async activateUser(@Param('id') id: number) {
     await this.getCandidate(id)
     return this.prisma.user.update({
       where: {
@@ -88,7 +87,7 @@ export class AdminUsersController {
 
   @HttpCode(200)
   @Post(':id/deactivate')
-  async deactivateUser(@Param('id', ParseIntPipe) id: number) {
+  async deactivateUser(@Param('id') id: number) {
     await this.getCandidate(id)
     return this.prisma.user.update({
       where: {
@@ -102,8 +101,8 @@ export class AdminUsersController {
   }
 
   @Delete(':id')
-  async deleteUser(@Param('id', ParseIntPipe) id: number, @Request() req) {
-    if (req?.user?.id === id) {
+  async deleteUser(@Param('id') id: number, @CurrentUser('id') userId: number) {
+    if (userId === id) {
       throw new ConflictException(Messages.ADMIN.USER.SELF_DELETION)
     }
     await this.getCandidate(id)

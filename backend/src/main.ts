@@ -10,7 +10,13 @@ async function bootstrap() {
     origin: '*',
   })
   app.setGlobalPrefix('v1')
-  app.useGlobalPipes(new ValidationPipe())
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  )
   app.useGlobalFilters(new PrismaClientExceptionFilter())
 
   await app.listen(process.env.PORT ?? 3000)

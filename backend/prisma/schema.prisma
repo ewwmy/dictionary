@@ -160,6 +160,8 @@ model Word {
   examples                Example[]
   progress                WordProgress?
 
+  @@unique([languageId, word])
+
   @@map("words")
 }
 

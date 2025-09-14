@@ -49,7 +49,7 @@ model User {
 model Language {
   id           Int            @id @default(autoincrement())
   userId       Int            @map("user_id")
-  name         String
+  name         String         @db.Citext
   country      String?
   flag         String?
   timeCreate   DateTime       @db.Timestamptz(6) @default(now()) @map("time_create")
@@ -61,7 +61,7 @@ model Language {
   words        Word[]
   level        Level[]
 
-  @@unique([userId, name])
+  @@unique([userId, name], map: "languages_user_id_name_key")
 
   @@map("languages")
 }
@@ -138,13 +138,14 @@ model Word {
   levelId                 Int?        @map("level_id")
   formality               Int?
   complexity              Int?
-  word                    String
+  word                    String      @db.Citext
   word2                   String?     @map("word_v2")
   word3                   String?     @map("word_v3")
   translation             String?
   description             String?
   transcriptionStrict     String?     @map("transcription_strict")
   transcriptionPhonetic   String?     @map("transcription_phonetic")
+  shareToken              String?     @map("share_token")
   isFavorite              Boolean     @default(false) @map("is_favorite")
   timeCreate              DateTime    @db.Timestamptz(6) @default(now()) @map("time_create")
   timeEdit                DateTime?   @db.Timestamptz(6) @updatedAt @map("time_edit")
@@ -160,7 +161,12 @@ model Word {
   examples                Example[]
   progress                WordProgress?
 
-  @@unique([languageId, word])
+  @@unique([languageId, word], map: "words_language_id_word_key")
+
+  @@index([word(ops: raw("gin_trgm_ops"))], type: Gin, map: "idx_words_word_trgm")
+  @@index([word2(ops: raw("gin_trgm_ops"))], type: Gin, map: "idx_words_word2_trgm")
+  @@index([word3(ops: raw("gin_trgm_ops"))], type: Gin, map: "idx_words_word3_trgm")
+  @@index([translation(ops: raw("gin_trgm_ops"))], type: Gin, map: "idx_words_translation_trgm")
 
   @@map("words")
 }

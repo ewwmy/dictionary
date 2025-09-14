@@ -100,6 +100,7 @@ entity words {
   description : STRING
   transcription_strict : STRING
   transcription_phonetic : STRING
+  share_token : STRING
   * is_favorite : BOOLEAN = 0
   * time_create : DATETIME
   time_edit : DATETIME

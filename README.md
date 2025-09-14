@@ -67,10 +67,18 @@ npx prisma migrate dev --name migration_name
 
 #### Seeding
 
+> Warning! Seeding creates an admin user. You must set a strong `ADMIN_PASSWORD` in `.env` file you use for production before seeding and change it through API as soon as possible.
+
 ##### Inside the Docker container
 
 ```bash
 docker compose exec dictionary-backend npx prisma db seed
+```
+
+With specific `.env` file:
+
+```bash
+docker compose --env-file .env.development exec dictionary-backend npx prisma db seed
 ```
 
 ##### Outside Docker

@@ -3,10 +3,8 @@ import {
   ConflictException,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   HttpCode,
-  NotFoundException,
   Param,
   Patch,
   Post,
@@ -25,6 +23,7 @@ import { CreateWordDto } from './dto/create-word.dto'
 import { LanguagesService } from 'src/languages/languages.service'
 import { SearchWordDto } from './dto/search-word.dto'
 import { UpdateWordDto } from './dto/update-word.dto'
+import { PaginationOptionalDto } from 'src/pagination/pagination.optional.dto'
 
 @UseGuards(JwtAuthGuard, ActiveUserGuard)
 @Controller()
@@ -34,24 +33,6 @@ export class WordsController {
     private readonly languagesService: LanguagesService,
     private readonly prisma: PrismaService,
   ) {}
-
-  private async getCandidate(id: number, userId: number) {
-    const candidate = await this.prisma.word.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        language: true,
-      },
-    })
-    if (!candidate) {
-      throw new NotFoundException(Messages.WORD.NOT_FOUND)
-    }
-    if (candidate.language.userId !== userId) {
-      throw new ForbiddenException(Messages.WORD.FORBIDDEN)
-    }
-    return candidate
-  }
 
   @Get('languages/:id/words')
   async getAll(
@@ -90,18 +71,21 @@ export class WordsController {
 
   @Get('words/:id')
   getOne(@Param('id') id: number, @CurrentUser('id') userId: number) {
-    return this.getCandidate(id, userId)
+    return this.wordsService.getCandidate(id, userId)
   }
 
   @HttpCode(200)
   @Post('words/search')
-  async getOneByName(
+  async search(
     @Body() dto: SearchWordDto,
+    @Query() query: PaginationOptionalDto,
     @CurrentUser('id') userId: number,
   ) {
     if (dto.languageId) {
       await this.languagesService.getCandidate(dto.languageId, userId)
     }
+
+    const { skip, take } = getPagination(query)
 
     return await this.prisma.word.findMany({
       where: {
@@ -110,15 +94,17 @@ export class WordsController {
           in: (await this.languagesService.getAll(userId)).map(l => l.id),
         },
         OR: [
-          { word: { contains: dto.search } },
-          { word2: { contains: dto.search } },
-          { word3: { contains: dto.search } },
-          { translation: { contains: dto.search } },
+          { word: { contains: dto.search, mode: 'insensitive' } },
+          { word2: { contains: dto.search, mode: 'insensitive' } },
+          { word3: { contains: dto.search, mode: 'insensitive' } },
+          { translation: { contains: dto.search, mode: 'insensitive' } },
         ],
       },
       include: {
         ...(!dto.languageId && { language: true }),
       },
+      skip,
+      take,
     })
   }
 
@@ -158,7 +144,7 @@ export class WordsController {
     @Body() dto: UpdateWordDto,
     @CurrentUser('id') userId: number,
   ) {
-    await this.getCandidate(id, userId)
+    await this.wordsService.getCandidate(id, userId)
     return this.prisma.word.update({
       where: {
         id,
@@ -171,7 +157,7 @@ export class WordsController {
 
   @Delete('words/:id')
   async delete(@Param('id') id: number, @CurrentUser('id') userId: number) {
-    await this.getCandidate(id, userId)
+    await this.wordsService.getCandidate(id, userId)
     return this.prisma.word.delete({
       where: {
         id,

@@ -46,7 +46,7 @@ export class AdminTokensController {
 
   @Get()
   getAll(@Query() query: PaginationDto) {
-    return paginate(this.prisma.inviteToken, query, {}, { force: true })
+    return paginate(this.prisma.inviteToken, query)
   }
 
   @Get(':id')

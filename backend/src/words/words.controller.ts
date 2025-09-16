@@ -26,7 +26,7 @@ import { UpdateWordDto } from './dto/update-word.dto'
 import { paginate } from 'src/pagination/paginate.helper'
 import { WordPaginationAndSortingDto } from 'src/sorting/words.sorting.dto'
 import { getSorting } from 'src/sorting/sorting.helper'
-import { Public } from 'src/auth/public.decorator'
+import { Public } from 'src/auth/decorators/public.decorator'
 import { randomUUID } from 'crypto'
 
 @UseGuards(JwtAuthGuard, ActiveUserGuard)

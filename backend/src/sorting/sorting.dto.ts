@@ -1,4 +1,3 @@
-// sorting.dto.ts
 import { Expose, Transform } from 'class-transformer'
 import { IsOptional, IsIn } from 'class-validator'
 

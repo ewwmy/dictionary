@@ -64,6 +64,29 @@ export class WordsController {
     return this.wordsService.getCandidate(id, userId)
   }
 
+  @Get('languages/:id/words/random')
+  async getRandom(
+    @Param('id') languageId: number,
+    @CurrentUser('id') userId: number,
+  ) {
+    await this.languagesService.getCandidate(languageId, userId)
+
+    const total = await this.prisma.word.count({
+      where: { languageId },
+    })
+
+    if (total === 0) {
+      throw new NotFoundException(Messages.WORD.NOT_FOUND)
+    }
+
+    const randomIndex = Math.floor(Math.random() * total)
+
+    return await this.prisma.word.findFirst({
+      where: { languageId },
+      skip: randomIndex,
+    })
+  }
+
   @Public()
   @Get('words/shared/:token')
   async getShared(@Param('token') token: string) {

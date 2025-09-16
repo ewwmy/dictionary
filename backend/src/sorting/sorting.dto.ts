@@ -2,10 +2,10 @@
 import { Expose, Transform } from 'class-transformer'
 import { IsOptional, IsIn } from 'class-validator'
 
-export const SORT_DIRECTIONS = ['asc', 'desc'] as const
-export const SORT_DIRECTION_DEFAULT = SORT_DIRECTIONS[0]
+export const SORT_ORDERS = ['asc', 'desc'] as const
+export const SORT_ORDER_DEFAULT = SORT_ORDERS[0]
 
-export type SortDirection = (typeof SORT_DIRECTIONS)[number]
+export type SortOrder = (typeof SORT_ORDERS)[number]
 
 export class SortingDto<TFields extends string = string> {
   @IsOptional()
@@ -14,8 +14,8 @@ export class SortingDto<TFields extends string = string> {
   sortBy?: TFields
 
   @IsOptional()
-  @IsIn(SORT_DIRECTIONS)
+  @IsIn(SORT_ORDERS)
   @Expose({ name: 'sort_order' })
-  @Transform(({ value }) => value ?? SORT_DIRECTION_DEFAULT)
-  sortOrder?: SortDirection = SORT_DIRECTION_DEFAULT
+  @Transform(({ value }) => value ?? SORT_ORDER_DEFAULT)
+  sortOrder?: SortOrder = SORT_ORDER_DEFAULT
 }

@@ -20,8 +20,8 @@ import { AdminTokensService } from './admin.tokens.service'
 import { randomUUID } from 'crypto'
 import { Messages } from 'src/messages/messages.const'
 import { ActiveUserGuard } from 'src/auth/is-active.guard'
-import { getPagination } from 'src/pagination/pagination.helper'
-import { PaginationOptionalDto } from 'src/pagination/pagination.optional.dto'
+import { PaginationDto } from 'src/pagination/pagination.dto'
+import { paginate } from 'src/pagination/paginate.helper'
 
 @UseGuards(JwtAuthGuard, RolesGuard, ActiveUserGuard)
 @Roles(Role.Admin)
@@ -45,12 +45,8 @@ export class AdminTokensController {
   }
 
   @Get()
-  getAll(@Query() query: PaginationOptionalDto) {
-    const { skip, take } = getPagination(query)
-    return this.prisma.inviteToken.findMany({
-      skip,
-      take,
-    })
+  getAll(@Query() query: PaginationDto) {
+    return paginate(this.prisma.inviteToken, query, {}, { force: true })
   }
 
   @Get(':id')

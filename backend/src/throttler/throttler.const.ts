@@ -1,5 +1,0 @@
-export const THROTTLE_LOGIN_TTL = 1000
-export const THROTTLE_LOGIN_LIMIT = 1
-
-export const THROTTLE_REGISTER_TTL = 5000
-export const THROTTLE_REGISTER_LIMIT = 1

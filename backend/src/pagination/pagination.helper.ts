@@ -1,37 +1,83 @@
 import { Constants } from 'src/constants/constants'
-import { PaginationOptionalDto } from './pagination.optional.dto'
-import { PaginationRequiredDto } from './pagination.required.dto'
-import { BadRequestException } from '@nestjs/common'
-import { Messages } from 'src/messages/messages.const'
+import { PaginationDto } from './pagination.dto'
 
-export const getPagination = <
-  T extends PaginationOptionalDto | PaginationRequiredDto,
->(
-  dto: T,
-) => {
+export type PaginationConfig = { force: boolean }
+
+export type PaginationQueryActive = {
+  page: number
+  limit: number
+}
+
+export type PaginationQueryEmpty = {
+  page: undefined
+  limit: undefined
+}
+
+export type PaginationQuery = PaginationQueryActive | PaginationQueryEmpty
+
+export type PaginationDbOptionsActive = {
+  skip: number
+  take: number
+}
+
+export type PaginationDbOptionsEmpty = {
+  skip: undefined
+  take: undefined
+}
+
+export type PaginationDbOptions =
+  | PaginationDbOptionsActive
+  | PaginationDbOptionsEmpty
+
+export type PaginationObject = {
+  query: PaginationQuery
+  dbOptions: PaginationDbOptions
+}
+
+export const getPagination = (
+  dto: PaginationDto,
+  config: PaginationConfig = { force: false },
+): PaginationObject => {
   let { page, limit } = dto
 
-  if (page === undefined && limit === undefined) {
-    if (dto instanceof PaginationRequiredDto) {
-      page = Constants.PAGINATION.DEFAULT_PAGE
-      limit = Constants.PAGINATION.DEFAULT_LIMIT
-    } else if (dto instanceof PaginationOptionalDto) {
-      return {}
-    } else {
-      throw new BadRequestException(Messages.PAGINATION.UNKNOWN_DTO_TYPE)
+  if (!config.force && page === undefined && limit === undefined) {
+    return {
+      query: {
+        page: undefined,
+        limit: undefined,
+      },
+      dbOptions: {
+        skip: undefined,
+        take: undefined,
+      },
     }
   }
 
-  if (page !== undefined && limit === undefined) {
-    limit = Constants.PAGINATION.DEFAULT_LIMIT
-  }
-
-  if (limit !== undefined && page === undefined) {
+  if (page === undefined) {
     page = Constants.PAGINATION.DEFAULT_PAGE
   }
 
-  return {
-    skip: (page - 1) * limit,
-    take: limit,
+  if (limit === undefined) {
+    limit = Constants.PAGINATION.DEFAULT_LIMIT
   }
+
+  limit = limit as number
+  page = page as number
+
+  return {
+    query: {
+      page,
+      limit,
+    },
+    dbOptions: {
+      skip: (page - 1) * limit,
+      take: limit,
+    },
+  }
+}
+
+export const isPaginationEmpty = (
+  dbOptions: PaginationDbOptions,
+): dbOptions is PaginationDbOptionsEmpty => {
+  return dbOptions.skip === undefined && dbOptions.take === undefined
 }

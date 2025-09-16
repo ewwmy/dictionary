@@ -16,14 +16,15 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { WordsService } from './words.service'
 import { Messages } from 'src/messages/messages.const'
-import { PaginationRequiredDto } from 'src/pagination/pagination.required.dto'
-import { getPagination } from 'src/pagination/pagination.helper'
+import { PaginationDto } from 'src/pagination/pagination.dto'
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator'
 import { CreateWordDto } from './dto/create-word.dto'
 import { LanguagesService } from 'src/languages/languages.service'
 import { SearchWordDto } from './dto/search-word.dto'
 import { UpdateWordDto } from './dto/update-word.dto'
-import { PaginationOptionalDto } from 'src/pagination/pagination.optional.dto'
+import { paginate } from 'src/pagination/paginate.helper'
+import { WordPaginationAndSortingDto } from 'src/sorting/words.sorting.dto'
+import { getSorting } from 'src/sorting/sorting.helper'
 
 @UseGuards(JwtAuthGuard, ActiveUserGuard)
 @Controller()
@@ -37,36 +38,22 @@ export class WordsController {
   @Get('languages/:id/words')
   async getAll(
     @Param('id') languageId: number,
-    @Query() query: PaginationRequiredDto,
+    @Query() query: WordPaginationAndSortingDto,
     @CurrentUser('id') userId: number,
   ) {
     await this.languagesService.getCandidate(languageId, userId)
 
-    const { skip, take } = getPagination(query)
-
-    const result = await this.prisma.word.findMany({
-      skip,
-      take,
-      where: {
-        languageId,
+    return await paginate(
+      this.prisma.word,
+      query,
+      {
+        where: {
+          languageId,
+        },
+        orderBy: getSorting(query),
       },
-    })
-
-    const total = await this.prisma.word.count({
-      where: {
-        languageId,
-      },
-    })
-
-    return {
-      data: result,
-      pagination: {
-        page: query.page,
-        limit: query.limit,
-        total: total,
-        hasNext: skip + take < total,
-      },
-    }
+      { force: true },
+    )
   }
 
   @Get('words/:id')
@@ -78,34 +65,36 @@ export class WordsController {
   @Post('words/search')
   async search(
     @Body() dto: SearchWordDto,
-    @Query() query: PaginationOptionalDto,
+    @Query() query: PaginationDto,
     @CurrentUser('id') userId: number,
   ) {
     if (dto.languageId) {
       await this.languagesService.getCandidate(dto.languageId, userId)
     }
 
-    const { skip, take } = getPagination(query)
-
-    return await this.prisma.word.findMany({
-      where: {
-        ...(dto.languageId && { languageId: dto.languageId }),
-        languageId: {
-          in: (await this.languagesService.getAll(userId)).map(l => l.id),
+    return await paginate(
+      this.prisma.word,
+      query,
+      {
+        where: {
+          languageId: {
+            in: dto.languageId
+              ? [dto.languageId]
+              : (await this.languagesService.getAll(userId)).map(l => l.id),
+          },
+          OR: [
+            { word: { contains: dto.search, mode: 'insensitive' } },
+            { word2: { contains: dto.search, mode: 'insensitive' } },
+            { word3: { contains: dto.search, mode: 'insensitive' } },
+            { translation: { contains: dto.search, mode: 'insensitive' } },
+          ],
         },
-        OR: [
-          { word: { contains: dto.search, mode: 'insensitive' } },
-          { word2: { contains: dto.search, mode: 'insensitive' } },
-          { word3: { contains: dto.search, mode: 'insensitive' } },
-          { translation: { contains: dto.search, mode: 'insensitive' } },
-        ],
+        include: {
+          ...(!dto.languageId && { language: true }),
+        },
       },
-      include: {
-        ...(!dto.languageId && { language: true }),
-      },
-      skip,
-      take,
-    })
+      { force: true },
+    )
   }
 
   @HttpCode(200)

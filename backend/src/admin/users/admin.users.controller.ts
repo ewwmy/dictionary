@@ -8,6 +8,7 @@ import {
   Post,
   UseGuards,
   ConflictException,
+  Query,
 } from '@nestjs/common'
 import { Role } from '@prisma/client'
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard'
@@ -18,6 +19,8 @@ import { PrismaService } from 'src/prisma/prisma.service'
 import { Messages } from 'src/messages/messages.const'
 import { ActiveUserGuard } from 'src/auth/is-active.guard'
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator'
+import { PaginationDto } from 'src/pagination/pagination.dto'
+import { paginate } from 'src/pagination/paginate.helper'
 
 @UseGuards(JwtAuthGuard, RolesGuard, ActiveUserGuard)
 @Roles(Role.Admin)
@@ -54,19 +57,15 @@ export class AdminUsersController {
   }
 
   @Get()
-  getUsers() {
-    return this.prisma.user.findMany({
-      select: this.fieldList,
-    })
+  getUsers(@Query() query: PaginationDto) {
+    return paginate(this.prisma.user, query, { select: this.fieldList })
   }
 
   @Get('pending')
-  getPendingUsers() {
-    return this.prisma.user.findMany({
+  getPendingUsers(@Query() query: PaginationDto) {
+    return paginate(this.prisma.user, query, {
       select: this.fieldList,
-      where: {
-        isActive: false,
-      },
+      where: { isActive: false },
     })
   }
 

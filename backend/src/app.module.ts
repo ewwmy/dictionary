@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common'
-import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { PrismaModule } from './prisma/prisma.module'
 import { UserModule } from './user/user.module'
@@ -9,7 +8,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { APP_GUARD } from '@nestjs/core'
 import { AdminModule } from './admin/admin.module'
 import { LanguagesModule } from './languages/languages.module'
-import { WordsModule } from './words/words.module';
+import { WordsModule } from './words/words.module'
 
 @Module({
   imports: [
@@ -34,7 +33,7 @@ import { WordsModule } from './words/words.module';
     LanguagesModule,
     WordsModule,
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [
     AppService,
     {

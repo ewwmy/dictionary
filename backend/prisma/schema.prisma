@@ -61,7 +61,7 @@ model Language {
   words        Word[]
   level        Level[]
 
-  @@unique([userId, name], map: "languages_user_id_name_key")
+  @@unique([userId, name])
 
   @@map("languages")
 }
@@ -161,7 +161,8 @@ model Word {
   examples                Example[]
   progress                WordProgress?
 
-  @@unique([languageId, word], map: "words_language_id_word_key")
+  @@unique([languageId, word])
+  @@unique([shareToken])
 
   @@index([word(ops: raw("gin_trgm_ops"))], type: Gin, map: "idx_words_word_trgm")
   @@index([word2(ops: raw("gin_trgm_ops"))], type: Gin, map: "idx_words_word2_trgm")

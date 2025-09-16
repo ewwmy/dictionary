@@ -15,6 +15,8 @@ export class ActiveUserGuard implements CanActivate {
     const req = context.switchToHttp().getRequest()
     const user = req.user
 
+    if (!user) return true
+
     const dbUser = await this.prisma.user.findUnique({
       where: {
         id: user.id,

@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -25,6 +26,8 @@ import { UpdateWordDto } from './dto/update-word.dto'
 import { paginate } from 'src/pagination/paginate.helper'
 import { WordPaginationAndSortingDto } from 'src/sorting/words.sorting.dto'
 import { getSorting } from 'src/sorting/sorting.helper'
+import { Public } from 'src/auth/public.decorator'
+import { randomUUID } from 'crypto'
 
 @UseGuards(JwtAuthGuard, ActiveUserGuard)
 @Controller()
@@ -59,6 +62,39 @@ export class WordsController {
   @Get('words/:id')
   getOne(@Param('id') id: number, @CurrentUser('id') userId: number) {
     return this.wordsService.getCandidate(id, userId)
+  }
+
+  @Public()
+  @Get('words/shared/:token')
+  async getShared(@Param('token') token: string) {
+    const candidate = await this.prisma.word.findUnique({
+      where: {
+        shareToken: token,
+      },
+      select: {
+        word: true,
+        word2: true,
+        word3: true,
+        translation: true,
+        description: true,
+        transcriptionPhonetic: true,
+        transcriptionStrict: true,
+        language: {
+          select: {
+            name: true,
+          },
+        },
+        level: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    })
+    if (!candidate) {
+      throw new NotFoundException(Messages.WORD.NOT_FOUND)
+    }
+    return candidate
   }
 
   @HttpCode(200)
@@ -123,6 +159,34 @@ export class WordsController {
       data: {
         ...dto,
         languageId,
+      },
+    })
+  }
+
+  @HttpCode(200)
+  @Post('words/:id/share')
+  async share(@Param('id') id: number, @CurrentUser('id') userId: number) {
+    await this.wordsService.getCandidate(id, userId)
+    return this.prisma.word.update({
+      where: {
+        id,
+      },
+      data: {
+        shareToken: randomUUID(),
+      },
+    })
+  }
+
+  @HttpCode(200)
+  @Post('words/:id/unshare')
+  async unshare(@Param('id') id: number, @CurrentUser('id') userId: number) {
+    await this.wordsService.getCandidate(id, userId)
+    return this.prisma.word.update({
+      where: {
+        id,
+      },
+      data: {
+        shareToken: null,
       },
     })
   }

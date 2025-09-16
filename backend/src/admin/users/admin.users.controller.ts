@@ -63,12 +63,6 @@ export class AdminUsersController {
 
   @Get('pending')
   getPendingUsers(@Query() query: PaginationDto) {
-    // return this.prisma.user.findMany({
-    //   select: this.fieldList,
-    //   where: {
-    //     isActive: false,
-    //   },
-    // })
     return paginate(this.prisma.user, query, {
       select: this.fieldList,
       where: { isActive: false },

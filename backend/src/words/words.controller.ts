@@ -23,6 +23,8 @@ import { LanguagesService } from 'src/languages/languages.service'
 import { SearchWordDto } from './dto/search-word.dto'
 import { UpdateWordDto } from './dto/update-word.dto'
 import { paginate } from 'src/pagination/paginate.helper'
+import { WordPaginationAndSortingDto } from 'src/sorting/words.sorting.dto'
+import { getSorting } from 'src/sorting/sorting.helper'
 
 @UseGuards(JwtAuthGuard, ActiveUserGuard)
 @Controller()
@@ -36,7 +38,7 @@ export class WordsController {
   @Get('languages/:id/words')
   async getAll(
     @Param('id') languageId: number,
-    @Query() query: PaginationDto,
+    @Query() query: WordPaginationAndSortingDto,
     @CurrentUser('id') userId: number,
   ) {
     await this.languagesService.getCandidate(languageId, userId)
@@ -48,6 +50,7 @@ export class WordsController {
         where: {
           languageId,
         },
+        orderBy: getSorting(query),
       },
       { force: true },
     )

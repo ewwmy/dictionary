@@ -28,6 +28,8 @@ import { WordPaginationAndSortingDto } from 'src/sorting/words.sorting.dto'
 import { getSorting } from 'src/sorting/sorting.helper'
 import { Public } from 'src/auth/decorators/public.decorator'
 import { randomUUID } from 'crypto'
+import { ImportService } from 'src/importer/import.service'
+import { ImportFromTextDto } from 'src/importer/import.from-text.dto'
 
 @UseGuards(JwtAuthGuard, ActiveUserGuard)
 @Controller()
@@ -35,6 +37,7 @@ export class WordsController {
   constructor(
     private readonly wordsService: WordsService,
     private readonly languagesService: LanguagesService,
+    private readonly importService: ImportService,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -184,6 +187,18 @@ export class WordsController {
         languageId,
       },
     })
+  }
+
+  @HttpCode(200)
+  @Post('languages/:id/words/import/text')
+  async importFromText(
+    @Param('id') languageId: number,
+    @Body() dto: ImportFromTextDto,
+    @CurrentUser('id') userId: number,
+  ) {
+    await this.languagesService.getCandidate(languageId, userId)
+
+    return this.importService.importFromText(dto.data)
   }
 
   @HttpCode(200)

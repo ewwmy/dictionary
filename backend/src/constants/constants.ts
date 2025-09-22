@@ -13,4 +13,7 @@ export const Constants = {
     MIN_FORMALITY: 1,
     MAX_FORMALITY: 5,
   },
+  BATCH: {
+    SIZE: process.env.BATCH_SIZE || 1000,
+  },
 }

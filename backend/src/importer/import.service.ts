@@ -1,16 +1,40 @@
-import { Injectable, Inject } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ImportedWord } from './import.types'
-import { Importer } from './importer.interface'
+import { Importer, ImporterOptions } from './importer.interface'
+import { PrismaService } from 'src/prisma/prisma.service'
+import { ImporterType } from './importer-type.enum'
+import { NoImporterFoundException } from './import.exceptions'
 
 @Injectable()
 export class ImportService {
-  constructor(@Inject('Importer') private readonly importer: Importer) {}
+  constructor(
+    private readonly importers: Importer[],
+    private readonly prisma: PrismaService,
+  ) {}
 
-  async importFromText(data: string): Promise<ImportedWord[]> {
-    return this.importer.import(data)
-  }
+  async import(
+    type: ImporterType,
+    data: string,
+    languageId: number,
+    options?: ImporterOptions,
+  ): Promise<{ count: number }> {
+    const importer = this.importers.find(i => i.getType() === type)
+    if (!importer) {
+      throw new NoImporterFoundException(type)
+    }
 
-  async importTranscriptionsFromText(data: string): Promise<ImportedWord[]> {
-    return this.importer.import(data, { isForTranscription: true })
+    const words: ImportedWord[] = await importer.import(data, options)
+
+    if (!words.length) {
+      return { count: 0 }
+    }
+
+    return await this.prisma.word.createMany({
+      data: words.map(word => ({
+        ...word,
+        languageId,
+      })),
+      skipDuplicates: true,
+    })
   }
 }

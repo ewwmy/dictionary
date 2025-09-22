@@ -1,5 +1,10 @@
 import { ImportedWord } from './import.types'
 
+export interface ImporterOptions {
+  isForTranscription: boolean
+}
+
 export interface Importer {
-  import(data: string, options?: any): Promise<ImportedWord[]>
+  getType(): string
+  import(data: string, options?: ImporterOptions): Promise<ImportedWord[]>
 }

@@ -1,12 +1,17 @@
 import { Injectable } from '@nestjs/common'
-import { Importer } from './importer.interface'
-import { ImportedWord } from './import.types'
+import { Importer, ImporterOptions } from '../importer.interface'
+import { ImportedWord } from '../import.types'
+import { ImporterType } from '../importer-type.enum'
 
 @Injectable()
-export class UserTextImporter implements Importer {
+export class PlainTextImporter implements Importer {
+  getType() {
+    return ImporterType.PlainText
+  }
+
   async import(
     data: string,
-    options: { isForTranscription: boolean } = { isForTranscription: false },
+    options: ImporterOptions = { isForTranscription: false },
   ): Promise<ImportedWord[]> {
     const lines = data
       .split('\n')

@@ -1,13 +1,22 @@
 import { Module } from '@nestjs/common'
 import { ImportService } from './import.service'
-import { UserTextImporter } from './user-text.importer'
+import { PlainTextImporter } from './importers/plain-text.importer'
+import { AnkiImporter } from './importers/anki.importer'
+import { PrismaService } from 'src/prisma/prisma.service'
 
 @Module({
   providers: [
-    ImportService,
+    PrismaService,
+    PlainTextImporter,
+    AnkiImporter,
     {
-      provide: 'Importer',
-      useClass: UserTextImporter,
+      provide: ImportService,
+      useFactory: (
+        plainText: PlainTextImporter,
+        anki: AnkiImporter,
+        prisma: PrismaService,
+      ) => new ImportService([plainText, anki], prisma),
+      inject: [PlainTextImporter, AnkiImporter, PrismaService],
     },
   ],
   exports: [ImportService],

@@ -197,20 +197,12 @@ export class WordsController {
     @Param('id') languageId: number,
     @Param('type') type: ImporterType,
     @Body() dto: ImportFromTextDto,
-    @Query('transcription_only') transcriptionOnly: boolean = false,
     @CurrentUser('id') userId: number,
   ) {
     await this.languagesService.getCandidate(languageId, userId)
 
     try {
-      const result = await this.importService.import(
-        type,
-        dto.data,
-        languageId,
-        {
-          isForTranscription: transcriptionOnly,
-        },
-      )
+      const result = await this.importService.import(type, dto.data, languageId)
 
       return result
     } catch (error) {

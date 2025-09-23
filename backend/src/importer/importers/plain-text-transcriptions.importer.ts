@@ -4,9 +4,9 @@ import { ImportedWord } from '../import.types'
 import { ImporterType } from '../importer-type.enum'
 
 @Injectable()
-export class PlainTextImporter implements Importer {
+export class PlainTextTranscriptionsImporter implements Importer {
   getType() {
-    return ImporterType.PlainText
+    return ImporterType.PlainTextTranscriptions
   }
 
   async import(data: string): Promise<ImportedWord[]> {
@@ -18,20 +18,9 @@ export class PlainTextImporter implements Importer {
     return lines.map((line): ImportedWord => {
       const [rawWord, rawDefinition] = line.split('—').map(s => s.trim())
 
-      const wordMatches = rawWord.match(/(\w+)\s*\((\w+),\s*(\w+)\)/i)
-
-      if (wordMatches) {
-        return {
-          word: wordMatches[1],
-          word2: wordMatches[2],
-          word3: wordMatches[3],
-          translation: rawDefinition,
-        }
-      } else {
-        return {
-          word: rawWord,
-          translation: rawDefinition,
-        }
+      return {
+        word: rawWord,
+        transcriptionPhonetic: rawDefinition,
       }
     })
   }

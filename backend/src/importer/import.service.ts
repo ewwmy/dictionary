@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { ImportedWord } from './import.types'
-import { Importer, ImporterOptions } from './importer.interface'
+import { Importer } from './importer.interface'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { ImporterType } from './importer-type.enum'
 import { NoImporterFoundException } from './import.exceptions'
@@ -16,14 +16,13 @@ export class ImportService {
     type: ImporterType,
     data: string,
     languageId: number,
-    options?: ImporterOptions,
   ): Promise<{ count: number }> {
     const importer = this.importers.find(i => i.getType() === type)
     if (!importer) {
       throw new NoImporterFoundException(type)
     }
 
-    const words: ImportedWord[] = await importer.import(data, options)
+    const words: ImportedWord[] = await importer.import(data)
 
     if (!words.length) {
       return { count: 0 }

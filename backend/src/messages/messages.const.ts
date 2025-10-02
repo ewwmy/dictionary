@@ -29,6 +29,7 @@ export const Messages = {
     NOT_FOUND: 'Word not found',
     FORBIDDEN: 'You can only access your own words',
     NAME_CONFLICT: 'Word with this name already exists',
+    NO_IMPORTER_FOUND: (type: string) => `No importer found for type "${type}"`,
   },
   USER: {
     NAME_TOO_SHORT: 'Name is too short',

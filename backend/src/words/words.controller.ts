@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -30,6 +31,7 @@ import { Public } from 'src/auth/decorators/public.decorator'
 import { randomUUID } from 'crypto'
 import { ImportService } from 'src/importer/import.service'
 import { ImportFromTextDto } from 'src/importer/import.from-text.dto'
+import { ImporterType } from 'src/importer/importer-type.enum'
 
 @UseGuards(JwtAuthGuard, ActiveUserGuard)
 @Controller()
@@ -190,15 +192,24 @@ export class WordsController {
   }
 
   @HttpCode(200)
-  @Post('languages/:id/words/import/text')
+  @Post('languages/:id/words/import/:type')
   async importFromText(
     @Param('id') languageId: number,
+    @Param('type') type: ImporterType,
     @Body() dto: ImportFromTextDto,
     @CurrentUser('id') userId: number,
   ) {
     await this.languagesService.getCandidate(languageId, userId)
 
-    return this.importService.importFromText(dto.data)
+    try {
+      const result = await this.importService.import(type, dto.data, languageId)
+
+      return result
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new BadRequestException(error.message)
+      }
+    }
   }
 
   @HttpCode(200)

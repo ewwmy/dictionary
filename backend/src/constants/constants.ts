@@ -14,6 +14,6 @@ export const Constants = {
     MAX_FORMALITY: 5,
   },
   BATCH: {
-    SIZE: process.env.BATCH_SIZE || 1000,
+    SIZE: Number(process.env.BATCH_SIZE) || 1000,
   },
 }

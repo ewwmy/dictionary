@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -30,7 +29,7 @@ import { getSorting } from 'src/sorting/sorting.helper'
 import { Public } from 'src/auth/decorators/public.decorator'
 import { randomUUID } from 'crypto'
 import { ImportService } from 'src/importer/import.service'
-import { ImportFromTextDto } from 'src/importer/import.from-text.dto'
+import { ImportDto } from 'src/importer/import.from-text.dto'
 import { ImporterType } from 'src/importer/importer-type.enum'
 
 @UseGuards(JwtAuthGuard, ActiveUserGuard)
@@ -196,18 +195,26 @@ export class WordsController {
   async importFromText(
     @Param('id') languageId: number,
     @Param('type') type: ImporterType,
-    @Body() dto: ImportFromTextDto,
+    @Body() dto: ImportDto,
     @CurrentUser('id') userId: number,
   ) {
     await this.languagesService.getCandidate(languageId, userId)
 
     try {
-      const result = await this.importService.import(type, dto.data, languageId)
+      const result = await this.importService.import(
+        type,
+        dto.data,
+        languageId,
+        {
+          overwriteType: dto.overwrite,
+          mergeDelimiter: dto.mergeDelimiter,
+        },
+      )
 
       return result
     } catch (error) {
       if (error instanceof Error) {
-        throw new BadRequestException(error.message)
+        throw new ConflictException(error.message)
       }
     }
   }

@@ -16,4 +16,7 @@ export const Constants = {
   BATCH: {
     SIZE: Number(process.env.BATCH_SIZE) || 1000,
   },
+  IMPORT: {
+    DEFAULT_MERGE_DELIMITER: '\n\n',
+  },
 }

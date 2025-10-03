@@ -29,7 +29,13 @@ export const Messages = {
     NOT_FOUND: 'Word not found',
     FORBIDDEN: 'You can only access your own words',
     NAME_CONFLICT: 'Word with this name already exists',
+  },
+  IMPORT: {
     NO_IMPORTER_FOUND: (type: string) => `No importer found for type "${type}"`,
+    DUPLICATE_IN_IMPORT: (word: string) =>
+      `Word "${word}" already exists in import`,
+    DUPLICATE_IN_DATABASE: (word: string) =>
+      `Word "${word}" already exists in database`,
   },
   USER: {
     NAME_TOO_SHORT: 'Name is too short',

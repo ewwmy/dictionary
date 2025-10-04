@@ -48,7 +48,9 @@ export class ImportService {
 
     switch (options.overwriteType) {
       case ImportOverwriteType.Yes:
-        words = Array.from(new Map(words.map(w => [w.word, w])).values())
+        words = Array.from(
+          new Map(words.map(w => [w.word.trim().toLowerCase(), w])).values(),
+        )
         break
       case ImportOverwriteType.Merge:
         const mergedWords = words.reduce(

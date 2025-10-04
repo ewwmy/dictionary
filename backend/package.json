@@ -1,6 +1,6 @@
 {
   "name": "dictionary",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "🚀 Backend for language learners 🎓 to easily write down, store, and memorize vocabulary and phrases 📘 with advanced review techniques 🔥",
   "author": "Andrew Akimov <akimov.it.dev@gmail.com> (https://github.com/ewwmy)",
   "private": true,

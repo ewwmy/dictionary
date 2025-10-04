@@ -39,6 +39,13 @@ export class ImportService {
       return { count: 0 }
     }
 
+    const fieldsToUpdate = [
+      'word2',
+      'word3',
+      'translation',
+      'transcriptionPhonetic',
+    ].filter(f => words[0][f] !== undefined)
+
     switch (options.overwriteType) {
       case ImportOverwriteType.Yes:
         words = Array.from(new Map(words.map(w => [w.word, w])).values())
@@ -88,9 +95,8 @@ export class ImportService {
       const chunk = words.slice(i, i + Constants.BATCH.SIZE)
 
       const rows = chunk.map(
-        w => Prisma.sql`
-        (${languageId}, ${w.word}, ${w.word2}, ${w.word3}, ${w.translation}, ${w.transcriptionPhonetic})
-      `,
+        w =>
+          Prisma.sql`(${languageId}, ${w.word}, ${w.word2}, ${w.word3}, ${w.translation}, ${w.transcriptionPhonetic})`,
       )
 
       switch (options.overwriteType) {
@@ -101,10 +107,26 @@ export class ImportService {
               VALUES ${Prisma.join(rows)}
               ON CONFLICT ("language_id", "word") DO UPDATE
               SET
-                "word_v2" = EXCLUDED."word_v2",
-                "word_v3" = EXCLUDED."word_v3",
-                "translation" = EXCLUDED."translation",
-                "transcription_phonetic" = EXCLUDED."transcription_phonetic";`
+                "word_v2" = CASE
+                  WHEN ${Prisma.sql`${fieldsToUpdate.includes('word2')}`} IS TRUE
+                  THEN EXCLUDED."word_v2"
+                  ELSE "words"."word_v2"
+                END,
+                "word_v3" = CASE
+                  WHEN ${Prisma.sql`${fieldsToUpdate.includes('word3')}`} IS TRUE
+                  THEN EXCLUDED."word_v3"
+                  ELSE "words"."word_v3"
+                END,
+                "translation" = CASE
+                  WHEN ${Prisma.sql`${fieldsToUpdate.includes('translation')}`} IS TRUE
+                  THEN EXCLUDED."translation"
+                  ELSE "words"."translation"
+                END,
+                "transcription_phonetic" = CASE
+                  WHEN ${Prisma.sql`${fieldsToUpdate.includes('transcriptionPhonetic')}`} IS TRUE
+                  THEN EXCLUDED."transcription_phonetic"
+                  ELSE "words"."transcription_phonetic"
+                END;`
           })
           break
         case ImportOverwriteType.Merge:
@@ -114,14 +136,31 @@ export class ImportService {
               VALUES ${Prisma.join(rows)}
               ON CONFLICT ("language_id", "word") DO UPDATE
               SET
-                "word_v2" = EXCLUDED."word_v2",
-                "word_v3" = EXCLUDED."word_v3",
-                "translation" = concat(
-                  "words"."translation",
-                  ${Prisma.sql`${options.mergeDelimiter ?? Constants.IMPORT.DEFAULT_MERGE_DELIMITER}`},
-                  EXCLUDED."translation"
-                ),
-                "transcription_phonetic" = EXCLUDED."transcription_phonetic";`
+                "word_v2" = CASE
+                  WHEN ${Prisma.sql`${fieldsToUpdate.includes('word2')}`} IS TRUE
+                  THEN EXCLUDED."word_v2"
+                  ELSE "words"."word_v2"
+                END,
+                "word_v3" = CASE
+                  WHEN ${Prisma.sql`${fieldsToUpdate.includes('word3')}`} IS TRUE
+                  THEN EXCLUDED."word_v3"
+                  ELSE "words"."word_v3"
+                END,
+                "translation" = CASE
+                  WHEN ${Prisma.sql`${fieldsToUpdate.includes('translation')}`} IS TRUE
+                  THEN
+                    concat(
+                      "words"."translation",
+                      ${Prisma.sql`${options.mergeDelimiter ?? Constants.IMPORT.DEFAULT_MERGE_DELIMITER}`},
+                      EXCLUDED."translation"
+                    )
+                  ELSE "words"."translation"
+                END,
+                "transcription_phonetic" = CASE
+                  WHEN ${Prisma.sql`${fieldsToUpdate.includes('transcriptionPhonetic')}`} IS TRUE
+                  THEN EXCLUDED."transcription_phonetic"
+                  ELSE "words"."transcription_phonetic"
+                END;`
           })
           break
         case ImportOverwriteType.Ignore:

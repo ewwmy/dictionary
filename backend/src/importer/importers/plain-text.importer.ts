@@ -16,7 +16,9 @@ export class PlainTextImporter implements Importer {
       .filter(line => line.length > 0)
 
     return lines.map((line): ImportedWord => {
-      const [rawWord, rawDefinition] = line.split('—').map(s => s.trim())
+      const [, rawWord, rawDefinition] = (
+        line.match(/^(.*?)—(.*)$/) || [, line, '']
+      ).map((s: string) => s.trim())
 
       const wordMatches = rawWord.match(/(\w+)\s*\((\w+),\s*(\w+)\)/i)
 

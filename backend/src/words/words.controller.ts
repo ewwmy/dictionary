@@ -201,15 +201,11 @@ export class WordsController {
     await this.languagesService.getCandidate(languageId, userId)
 
     try {
-      const result = await this.importService.import(
-        type,
-        dto.data,
-        languageId,
-        {
-          overwriteType: dto.overwrite,
-          mergeDelimiter: dto.mergeDelimiter,
-        },
-      )
+      const data = Buffer.from(dto.data, 'base64').toString('utf-8')
+      const result = await this.importService.import(type, data, languageId, {
+        overwriteType: dto.overwrite,
+        mergeDelimiter: dto.mergeDelimiter,
+      })
 
       return result
     } catch (error) {
